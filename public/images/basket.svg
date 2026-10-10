@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 560" width="640" height="560" role="img" aria-label="Friendly Basket grocery basket illustration">
+  <defs>
+    <linearGradient id="basketBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#22C55E"/>
+      <stop offset="1" stop-color="#0B6B25"/>
+    </linearGradient>
+    <linearGradient id="basketShadow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="leafA" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#65D914"/>
+      <stop offset="1" stop-color="#22C55E"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="320" cy="500" rx="210" ry="34" fill="url(#basketShadow)"/>
+  <path d="M300 128c-16-54 20-92 60-104 6 46-20 86-60 104Z" fill="url(#leafA)"/>
+  <path d="M330 128c22-44 66-58 104-46-16 46-58 62-104 46Z" fill="url(#leafA)" opacity="0.85"/>
+  <g>
+    <circle cx="250" cy="176" r="42" fill="#F3FCEB" stroke="#E3EDE2" stroke-width="4"/>
+    <circle cx="250" cy="176" r="26" fill="#65D914" opacity="0.35"/>
+    <circle cx="370" cy="150" r="34" fill="#FEF3C7" stroke="#FDE68A" stroke-width="4"/>
+    <path d="M360 150a10 10 0 1 1 20 0" fill="none" stroke="#B45309" stroke-width="4" stroke-linecap="round"/>
+    <rect x="300" y="120" width="46" height="70" rx="10" fill="#DBEAFE" stroke="#BFDBFE" stroke-width="4"/>
+    <rect x="310" y="106" width="26" height="18" rx="6" fill="#93C5FD"/>
+  </g>
+  <path d="M150 236h340l-34 214c-2 14-14 24-28 24H212c-14 0-26-10-28-24L150 236Z" fill="url(#basketBody)"/>
+  <path d="M186 300h268M180 348h280M188 396h264" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="10" stroke-linecap="round"/>
+  <path d="M226 236c0-56 42-96 94-96s94 40 94 96" fill="none" stroke="#064E20" stroke-width="20" stroke-linecap="round"/>
+  <path d="M226 236c0-56 42-96 94-96s94 40 94 96" fill="none" stroke="#22C55E" stroke-width="12" stroke-linecap="round"/>
+  <text x="320" y="356" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#FFFFFF" opacity="0.9">Friendly Basket</text>
+</svg>

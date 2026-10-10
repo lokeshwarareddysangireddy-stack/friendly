@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 900" width="720" height="900" role="img" aria-label="Friendly Basket promotional poster">
+  <defs>
+    <linearGradient id="promo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B6B25"/>
+      <stop offset="1" stop-color="#064E20"/>
+    </linearGradient>
+    <linearGradient id="lime" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#65D914"/>
+      <stop offset="1" stop-color="#22C55E"/>
+    </linearGradient>
+  </defs>
+  <rect width="720" height="900" rx="36" fill="url(#promo)"/>
+  <circle cx="640" cy="120" r="150" fill="url(#lime)" opacity="0.18"/>
+  <circle cx="90" cy="800" r="180" fill="#65D914" opacity="0.12"/>
+  <rect x="60" y="60" width="600" height="780" rx="28" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="2"/>
+  <text x="360" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="40" font-weight="700" fill="#65D914" letter-spacing="4">FRIENDLY BASKET</text>
+  <text x="360" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" fill="#FFFFFF" opacity="0.85">Everything You Need. One Message Away!</text>
+  <text x="360" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="120" font-weight="800" fill="#FFFFFF">Starts from</text>
+  <text x="360" y="640" text-anchor="middle" font-family="Arial, sans-serif" font-size="200" font-weight="800" fill="#65D914">&#8377;49</text>
+  <text x="360" y="710" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" fill="#FFFFFF" opacity="0.8">on selected items and orders. Conditions apply.</text>
+  <text x="360" y="775" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#FFFFFF">Order on WhatsApp  +91 98881 44184</text>
+</svg>

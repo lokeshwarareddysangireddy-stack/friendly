@@ -1,0 +1,27 @@
+FRIENDLY BASKET — BRAND ASSETS
+
+The three original brand assets referenced in the project brief were NOT present
+in the workspace when this project was initialized (searched: project folder,
+Desktop, Downloads, Pictures, Documents and the OpenCode temp directory).
+
+Expected assets and where to place them once supplied:
+
+1. Original logo (header, footer, favicon, admin login)
+   -> public/images/logo.png  (transparent PNG recommended)
+      Also replace app/icon.svg for the favicon.
+
+2. Promotional poster (homepage promotional section, Telugu text preserved)
+   -> public/images/promo-poster.jpg
+
+3. Green basket product artwork (hero + promotional sections)
+   -> public/images/basket-artwork.png
+
+Until the real files are added, the site uses faithful, brand-coloured SVG
+fallbacks created for this build:
+   - public/images/logo-mark.svg   (basket mark used by the Logo component)
+   - public/images/basket.svg      (hero basket illustration)
+   - public/images/promo-poster.svg (promotional placeholder)
+
+The fallbacks follow the supplied brand palette and are clearly identifiable as
+non-final. Replace them via the admin dashboard (Cloudinary uploads) or by
+dropping the real files in public/images/.
