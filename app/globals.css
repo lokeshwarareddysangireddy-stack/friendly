@@ -476,7 +476,7 @@ body {
     );
   }
 
-  .reveal {
+  .reveal-hidden {
     opacity: 0;
     transform: translateY(22px);
   }

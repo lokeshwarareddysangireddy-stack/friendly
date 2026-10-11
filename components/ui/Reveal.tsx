@@ -1,7 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { cn } from "@/lib/utils";
+
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 export function Reveal({
   children,
@@ -15,7 +24,12 @@ export function Reveal({
   as?: "div" | "section" | "li" | "article";
 }) {
   const ref = useRef<HTMLElement | null>(null);
+  const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
+
+  useIsomorphicLayoutEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const node = ref.current;
@@ -39,10 +53,17 @@ export function Reveal({
     return () => observer.disconnect();
   }, []);
 
+  const hidden = mounted && !visible;
+
   return (
     <Tag
       ref={ref as never}
-      className={cn("reveal", visible && "is-visible", className)}
+      className={cn(
+        "reveal",
+        hidden && "reveal-hidden",
+        visible && "is-visible",
+        className
+      )}
       style={delay ? { animationDelay: `${delay}ms` } : undefined}
     >
       {children}
