@@ -817,7 +817,7 @@ export const SEED_SETTINGS: SiteSettingsDoc = {
   whatsappNumber: "919888144184",
   contactEmail: "hello@friendlybasket.com",
   supportHours: "Every day, 8:00 AM \u2013 10:00 PM",
-  address: "Serving your neighbourhood in Hyderabad",
+  address: "Chintalpudi, Eluru District - 534460",
   freeDeliveryNote:
     "Free delivery applies above the threshold set for your delivery zone.",
   updatedAt: NOW,

@@ -5,19 +5,14 @@ import { revalidatePublicContent } from "@/lib/admin/revalidate";
 import type {
   AdminUserDoc,
   CategoryDoc,
-  CustomerDoc,
   DeliveryZoneDoc,
   EnquiryDoc,
   FAQDoc,
-  NewsletterDoc,
-  NotificationLogDoc,
   OrderDoc,
-  OrderTrackDoc,
   PaymentRecordDoc,
   ProductDoc,
   PromotionDoc,
   ReviewDoc,
-  RiderDoc,
   SiteSettingsDoc,
 } from "@/types";
 import {
@@ -49,12 +44,7 @@ export interface MemoryStore {
   admins: AdminUserDoc[];
   settings: SiteSettingsDoc[];
   webhookEvents: WebhookEventRec[];
-  customers: CustomerDoc[];
   reviews: ReviewDoc[];
-  riders: RiderDoc[];
-  tracks: OrderTrackDoc[];
-  notifications: NotificationLogDoc[];
-  newsletter: NewsletterDoc[];
 }
 
 function clone<T>(value: T): T {
@@ -191,12 +181,7 @@ function trackedStore(store: MemoryStore): MemoryStore {
     "admins",
     "settings",
     "webhookEvents",
-    "customers",
     "reviews",
-    "riders",
-    "tracks",
-    "notifications",
-    "newsletter",
   ] as const;
 
   const target = { ...store } as Record<string, unknown>;
@@ -245,12 +230,7 @@ function seedStore(): MemoryStore {
     admins,
     settings: [clone(SEED_SETTINGS)],
     webhookEvents: [],
-    customers: [],
     reviews: [],
-    riders: [],
-    tracks: [],
-    notifications: [],
-    newsletter: [],
   };
 }
 
@@ -274,12 +254,7 @@ function mergeWithSeeds(persisted: PersistedFile): MemoryStore {
     admins: previous.admins?.length ? previous.admins : fresh.admins,
     settings: previous.settings?.length ? previous.settings : fresh.settings,
     webhookEvents: previous.webhookEvents || [],
-    customers: previous.customers || [],
     reviews: previous.reviews || [],
-    riders: previous.riders || [],
-    tracks: previous.tracks || [],
-    notifications: previous.notifications || [],
-    newsletter: previous.newsletter || [],
   });
 }
 

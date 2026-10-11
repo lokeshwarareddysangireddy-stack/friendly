@@ -6,7 +6,6 @@ const ReviewSchema = new Schema(
     productId: { type: String, required: true, index: true },
     productSlug: { type: String, required: true, index: true },
     productName: { type: String, default: "" },
-    customerId: { type: String, default: null, index: true },
     customerName: { type: String, required: true },
     customerEmail: { type: String, default: "", lowercase: true },
     rating: { type: Number, required: true, min: 1, max: 5 },
@@ -23,8 +22,6 @@ const ReviewSchema = new Schema(
   },
   { timestamps: true, collection: "reviews" }
 );
-
-ReviewSchema.index({ productId: 1, customerId: 1 }, { unique: true, sparse: true });
 
 export const Review: Model<ReviewDoc> =
   (mongoose.models.Review as Model<ReviewDoc>) ||

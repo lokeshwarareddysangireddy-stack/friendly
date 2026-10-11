@@ -115,7 +115,9 @@ export function ReviewsManager({ initialItems }: { initialItems: ReviewDoc[] }) 
                       />
                     ))}
                     <span className="text-xs text-muted">
-                      {r.customerName} · {r.customerEmail} · {formatDateTime(r.createdAt)}
+                      {r.customerName}
+                      {r.customerEmail ? ` · ${r.customerEmail}` : ""} ·{" "}
+                      {formatDateTime(r.createdAt)}
                     </span>
                   </div>
                 </div>

@@ -62,36 +62,6 @@ const OrderSchema = new Schema(
       index: true,
     },
     paymentMethod: { type: String, enum: ["razorpay", "enquiry"], default: "razorpay" },
-    customerId: { type: String, default: null, index: true },
-    customerEmail: { type: String, default: null, lowercase: true },
-    assignment: {
-      type: new Schema(
-        {
-          riderId: { type: String, default: null },
-          riderName: { type: String, default: "" },
-          riderMobile: { type: String, default: "" },
-          assignedAt: { type: Date, default: null },
-          pickedUpAt: { type: Date, default: null },
-          deliveredAt: { type: Date, default: null },
-        },
-        { _id: false }
-      ),
-      default: null,
-    },
-    statusHistory: {
-      type: [
-        new Schema(
-          {
-            status: { type: String, required: true },
-            at: { type: Date, default: Date.now },
-            by: { type: String, enum: ["system", "admin", "rider"], default: "system" },
-            note: { type: String, default: "" },
-          },
-          { _id: false }
-        ),
-      ],
-      default: [],
-    },
     razorpayOrderId: { type: String, default: null, index: true },
     razorpayPaymentId: { type: String, default: null },
     razorpaySignature: { type: String, default: null },

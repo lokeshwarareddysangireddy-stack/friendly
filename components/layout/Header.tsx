@@ -5,18 +5,14 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   ChevronDown,
-  Heart,
   Menu,
   Search,
   ShoppingCart,
-  User,
   X,
   Loader2,
 } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { useCart } from "@/components/cart/cart-context";
-import { useCustomer } from "@/components/auth/customer-context";
-import { useWishlist } from "@/components/wishlist/wishlist-context";
 import { cn } from "@/lib/utils";
 
 export interface NavCategory {
@@ -43,8 +39,6 @@ export function Header({ categories }: { categories: NavCategory[] }) {
   const pathname = usePathname();
   const router = useRouter();
   const { count } = useCart();
-  const { count: wishCount } = useWishlist();
-  const { customer } = useCustomer();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
@@ -157,28 +151,6 @@ export function Header({ categories }: { categories: NavCategory[] }) {
             >
               <Search className="h-5 w-5" />
             </button>
-            <Link
-              href="/wishlist"
-              aria-label={`Wishlist, ${wishCount} items`}
-              className="relative inline-flex h-10 w-10 items-center justify-center rounded-full text-forest transition hover:bg-pale"
-            >
-              <Heart className="h-5 w-5" />
-              {wishCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
-                  {wishCount > 99 ? "99+" : wishCount}
-                </span>
-              )}
-            </Link>
-            <Link
-              href={customer ? "/account" : "/login"}
-              aria-label={customer ? "Your account" : "Sign in"}
-              className="relative inline-flex h-10 w-10 items-center justify-center rounded-full text-forest transition hover:bg-pale"
-            >
-              <User className="h-5 w-5" />
-              {customer && (
-                <span className="absolute -right-0 top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-brand" />
-              )}
-            </Link>
             <Link
               href="/cart"
               aria-label={`Shopping cart, ${count} items`}

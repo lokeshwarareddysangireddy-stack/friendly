@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   CheckCircle2,
@@ -190,14 +189,8 @@ export default async function OrderSuccessPage({
         <div className="mt-6 flex flex-col items-center gap-3 text-center">
           <p className="inline-flex items-center gap-2 text-sm text-muted">
             <PartyPopper className="h-4 w-4 text-deep" />
-            Need help? Save your order ID — you can look it up anytime.
+            Need help? Save your order ID — our team can look it up for you.
           </p>
-          <Link
-            href="/order-lookup"
-            className="text-sm font-bold text-deep hover:underline"
-          >
-            Look up another order
-          </Link>
         </div>
       </div>
     </section>

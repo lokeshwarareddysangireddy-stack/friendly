@@ -1,4 +1,4 @@
-import mongoose, { Schema, type Model } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import type { PaymentRecordDoc } from "@/types";
 
 const WebhookEventSchema = new Schema(

@@ -12,7 +12,6 @@ const STATIC_ROUTES = [
   "/about",
   "/contact",
   "/faq",
-  "/order-lookup",
   "/privacy-policy",
   "/terms-and-conditions",
   "/delivery-and-cancellation-policy",

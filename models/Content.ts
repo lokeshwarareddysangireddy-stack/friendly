@@ -69,7 +69,7 @@ const SiteSettingsSchema = new Schema(
     whatsappNumber: { type: String, default: "919888144184" },
     contactEmail: { type: String, default: "hello@friendlybasket.com" },
     supportHours: { type: String, default: "Every day, 8:00 AM \u2013 10:00 PM" },
-    address: { type: String, default: "Serving your neighbourhood in Hyderabad" },
+    address: { type: String, default: "Chintalpudi, Eluru District - 534460" },
     freeDeliveryNote: {
       type: String,
       default: "Free delivery applies above the threshold set for your delivery zone.",

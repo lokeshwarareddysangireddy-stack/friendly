@@ -90,49 +90,6 @@ export interface OrderItemSnapshot {
   unit?: string;
 }
 
-export interface AddressDoc {
-  _id: string;
-  label: string;
-  line1: string;
-  line2?: string;
-  city: string;
-  state: string;
-  pincode: string;
-  mobile?: string;
-  isDefault: boolean;
-}
-
-export interface CustomerDoc {
-  _id: string;
-  email: string;
-  name: string;
-  mobile: string;
-  passwordHash: string;
-  emailVerified: boolean;
-  verifyToken?: string | null;
-  verifyTokenExpiry?: string | null;
-  resetToken?: string | null;
-  resetTokenExpiry?: string | null;
-  addresses: AddressDoc[];
-  wishlist: string[];
-  cart: CustomerCartLine[];
-  active: boolean;
-  lastLoginAt?: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CustomerCartLine {
-  productId: string;
-  name: string;
-  slug: string;
-  price: number;
-  mrp?: number | null;
-  image?: string;
-  unit?: string;
-  quantity: number;
-}
-
 export type ReviewStatus = "pending" | "approved" | "rejected";
 
 export interface ReviewDoc {
@@ -140,7 +97,6 @@ export interface ReviewDoc {
   productId: string;
   productSlug: string;
   productName: string;
-  customerId?: string | null;
   customerName: string;
   customerEmail: string;
   rating: number;
@@ -149,86 +105,6 @@ export interface ReviewDoc {
   orderId?: string | null;
   verifiedPurchase: boolean;
   status: ReviewStatus;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export type RiderStatus = "offline" | "online" | "busy";
-
-export interface RiderDoc {
-  _id: string;
-  name: string;
-  mobile: string;
-  email?: string;
-  passwordHash: string;
-  vehicleType?: string;
-  licensePlate?: string;
-  active: boolean;
-  status: RiderStatus;
-  lastLocation?: GeoPoint | null;
-  lastLoginAt?: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface GeoPoint {
-  lat: number;
-  lng: number;
-  accuracy?: number | null;
-  speed?: number | null;
-  heading?: number | null;
-  recordedAt: string;
-}
-
-export interface OrderTrackDoc {
-  _id: string;
-  orderId: string;
-  riderId: string;
-  points: GeoPoint[];
-  updatedAt: string;
-  createdAt: string;
-}
-
-export interface RiderAssignment {
-  riderId: string;
-  riderName: string;
-  riderMobile: string;
-  assignedAt: string;
-  pickedUpAt?: string | null;
-  deliveredAt?: string | null;
-}
-
-export interface OrderStatusEvent {
-  status: string;
-  at: string;
-  by: "system" | "admin" | "rider";
-  note?: string;
-}
-
-export type NotificationChannel = "email" | "whatsapp";
-export type NotificationStatus = "sent" | "failed" | "skipped";
-
-export interface NotificationLogDoc {
-  _id: string;
-  channel: NotificationChannel;
-  event: string;
-  orderId?: string | null;
-  recipient: string;
-  subject: string;
-  preview: string;
-  status: NotificationStatus;
-  provider: string;
-  providerMessageId?: string | null;
-  error?: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface NewsletterDoc {
-  _id: string;
-  email: string;
-  source: string;
-  active: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -265,10 +141,6 @@ export interface OrderDoc {
   paymentStatus: OrderPaymentStatus;
   fulfilmentStatus: OrderFulfilmentStatus;
   paymentMethod: "razorpay" | "enquiry";
-  customerId?: string | null;
-  customerEmail?: string | null;
-  assignment?: RiderAssignment | null;
-  statusHistory?: OrderStatusEvent[];
   razorpayOrderId?: string | null;
   razorpayPaymentId?: string | null;
   razorpaySignature?: string | null;

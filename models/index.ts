@@ -6,7 +6,4 @@ export { Order } from "./Order";
 export { PaymentRecord } from "./PaymentRecord";
 export { WebhookEvent } from "./WebhookEvent";
 export { Promotion, FAQ, Enquiry, SiteSettings } from "./Content";
-export { Customer } from "./Customer";
 export { Review } from "./Review";
-export { Rider, OrderTrack } from "./Rider";
-export { NotificationLog, Newsletter } from "./Notification";

@@ -1,11 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Heart, Minus, Plus, ShoppingCart, Stethoscope, Zap } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Stethoscope, Zap } from "lucide-react";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { Badge } from "@/components/ui/Badge";
 import { useCart } from "@/components/cart/cart-context";
-import { useWishlist } from "@/components/wishlist/wishlist-context";
 import { useToast } from "@/components/ui/Toast";
 import { WhatsAppLink } from "@/components/layout/WhatsAppLink";
 import { WA_TEMPLATES } from "@/lib/whatsapp";
@@ -30,10 +29,8 @@ export function ProductCard({
 }) {
   const router = useRouter();
   const { items, addItem, setQuantity } = useCart();
-  const { has, toggle } = useWishlist();
   const { toast } = useToast();
   const inCart = items.find((i) => i.productId === product._id);
-  const wished = has(product._id);
 
   const href = `/product/${product.slug}`;
   const open = () => router.push(href);
@@ -92,22 +89,6 @@ export function ProductCard({
             </Badge>
           </div>
         )}
-        <button
-          type="button"
-          aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
-          aria-pressed={wished}
-          onClick={async (e) => {
-            e.stopPropagation();
-            const added = await toggle(product._id);
-            toast(added ? "Added to wishlist" : "Removed from wishlist");
-          }}
-          className={cn(
-            "absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border bg-white/90 backdrop-blur transition hover:scale-105",
-            wished ? "border-rose-200 text-rose-500" : "border-line text-forest/70 hover:text-rose-500"
-          )}
-        >
-          <Heart className={cn("h-4 w-4", wished && "fill-rose-500")} />
-        </button>
         {outOfStock && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-[2px]">
             <span className="rounded-full bg-forest px-4 py-2 text-xs font-bold text-white">
