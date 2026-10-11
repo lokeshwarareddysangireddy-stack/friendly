@@ -17,11 +17,11 @@ export function Logo({
     <span className={cn("inline-flex items-center gap-2.5", className)}>
       <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl shadow-[0_8px_20px_-8px_rgba(6,78,32,0.6)]">
         <Image
-          src="/images/logo-mark.svg"
+          src="/images/logo.png"
           alt="Friendly Basket logo"
           width={40}
           height={40}
-          className="h-10 w-10"
+          className="h-10 w-10 object-contain"
           priority
         />
       </span>
