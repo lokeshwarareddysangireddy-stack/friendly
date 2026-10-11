@@ -105,13 +105,6 @@ export function Header({ categories }: { categories: NavCategory[] }) {
               {servicesOpen && (
                 <div className="absolute left-0 top-full z-50 w-72 pt-2">
                   <div className="overflow-hidden rounded-3xl border border-line bg-white p-2 shadow-[0_30px_60px_-30px_rgba(6,78,32,0.5)]">
-                    <Link
-                      href="/services"
-                      className="block rounded-2xl px-4 py-3 text-sm font-bold text-forest transition hover:bg-pale"
-                    >
-                      All Services
-                    </Link>
-                    <div className="my-1 h-px bg-line" />
                     {categories.map((c) => (
                       <Link
                         key={c.slug}
@@ -209,9 +202,6 @@ export function Header({ categories }: { categories: NavCategory[] }) {
               <p className="px-4 pb-1 pt-4 text-xs font-bold uppercase tracking-widest text-muted">
                 Services
               </p>
-              <MobileLink href="/services" active={pathname === "/services"}>
-                All Services
-              </MobileLink>
               {categories.map((c) => (
                 <MobileLink
                   key={c.slug}
