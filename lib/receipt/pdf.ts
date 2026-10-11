@@ -68,7 +68,7 @@ export function buildReceiptPdf(order: OrderDoc): Promise<Buffer> {
       .text(order.customer.name, 62, boxTop + 30)
       .text(maskMobile(order.customer.mobile), 62, boxTop + 46)
       .text(
-        `${order.customer.address}, ${order.customer.city}, ${order.customer.state} - ${order.customer.pincode}`,
+        `${order.customer.address}, ${order.customer.area ? order.customer.area + (order.customer.landmark ? `, ${order.customer.landmark}` : "") : [order.customer.city, order.customer.state].filter(Boolean).join(", ") + (order.customer.pincode ? ` - ${order.customer.pincode}` : "")}`,
         62,
         boxTop + 62,
         { width: pageWidth - 24 }

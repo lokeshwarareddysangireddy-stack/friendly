@@ -1,5 +1,4 @@
 ﻿import { z } from "zod";
-import { INDIAN_STATES } from "@/lib/site";
 
 const pincode = z
   .string()
@@ -25,12 +24,13 @@ export const checkoutSchema = z.object({
     name: z.string().trim().min(2, "Please enter your full name"),
     mobile,
     address: z.string().trim().min(8, "Please enter your full delivery address"),
-    pincode,
-    city: z.string().trim().min(2, "Please enter your city"),
-    state: z.enum(INDIAN_STATES as unknown as [string, ...string[]], {
-      message: "Please select your state",
-    }),
+    area: z.string().trim().min(2, "Please enter your area"),
+    landmark: z.string().trim().max(120).optional().default(""),
     instructions: z.string().trim().max(300).optional().default(""),
+    // Legacy fields accepted for backward compatibility; the checkout form no longer collects them.
+    pincode: pincode.optional(),
+    city: z.string().trim().min(2).optional(),
+    state: z.string().trim().min(2).optional(),
   }),
   items: z.array(cartLineSchema).min(1, "Your cart is empty"),
 });

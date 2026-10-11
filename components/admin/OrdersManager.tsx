@@ -178,7 +178,9 @@ export function OrdersManager({
                     </span>
                     <span className="block text-xs">{o.customer.mobile}</span>
                     <span className="block text-xs">
-                      {o.customer.city} — {o.customer.pincode}
+                      {o.customer.area
+                        ? o.customer.area + (o.customer.landmark ? ` — ${o.customer.landmark}` : "")
+                        : [o.customer.city, o.customer.pincode].filter(Boolean).join(" — ")}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-muted">

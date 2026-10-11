@@ -18,7 +18,7 @@ export default function PrivacyPolicyPage() {
         {
           heading: "Information we collect",
           body: [
-            "When you place an order or send an enquiry, we collect the details you provide: your name, mobile number, delivery address, pincode, city, state and any delivery instructions or enquiry notes.",
+            "When you place an order or send an enquiry, we collect the details you provide: your name, mobile number, delivery address, area, nearby landmark and any delivery instructions or enquiry notes.",
             "We also create records relating to your order, such as the order ID, items requested, amounts payable, delivery zone and payment status.",
           ],
         },

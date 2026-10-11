@@ -17,8 +17,8 @@ const REASONS = [
   },
   {
     icon: MapPin,
-    title: "Zone-based delivery pricing",
-    text: "Delivery charges are matched to your pincode and shown clearly before you pay.",
+    title: "Delivery within 20 km",
+    text: "We deliver free across a 20 km range and confirm your location before dispatch.",
   },
   {
     icon: ShieldCheck,

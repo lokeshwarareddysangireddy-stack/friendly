@@ -11,9 +11,11 @@ export interface ReceiptData {
     name: string;
     mobile: string;
     address: string;
-    pincode: string;
-    city: string;
-    state: string;
+    area?: string;
+    landmark?: string;
+    pincode?: string;
+    city?: string;
+    state?: string;
     instructions?: string;
   };
   delivery: {
@@ -51,7 +53,7 @@ export function formatReceiptText(data: ReceiptData): string {
     "",
     `Customer: ${data.customer.name}`,
     `Mobile: ${maskMobile(data.customer.mobile)}`,
-    `Address: ${data.customer.address}, ${data.customer.city}, ${data.customer.state} - ${data.customer.pincode}`,
+    `Address: ${data.customer.address}, ${data.customer.area ? data.customer.area + (data.customer.landmark ? `, ${data.customer.landmark}` : "") : [data.customer.city, data.customer.state].filter(Boolean).join(", ") + (data.customer.pincode ? ` - ${data.customer.pincode}` : "")}`,
     "",
     "Items:",
     ...data.items.map(

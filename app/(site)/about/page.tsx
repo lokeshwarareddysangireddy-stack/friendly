@@ -25,7 +25,7 @@ const PILLARS = [
   {
     icon: MapPin,
     title: "Transparent delivery",
-    text: "Delivery charges come from the delivery zone that matches your pincode, and are shown before you pay.",
+    text: "We deliver within a 20 km range. Your order, its availability and any charges are confirmed before you pay.",
   },
   {
     icon: ShieldCheck,

@@ -114,7 +114,7 @@ export default async function AdminDashboardPage() {
                       <td className="py-3 font-semibold text-forest">{o.orderId}</td>
                       <td className="py-3 text-muted">
                         {o.customer.name}
-                        <span className="block text-xs">{o.customer.pincode}</span>
+                        <span className="block text-xs">{o.customer.area || o.customer.pincode}</span>
                       </td>
                       <td className="py-3 font-semibold text-forest">
                         {formatINR(o.total)}

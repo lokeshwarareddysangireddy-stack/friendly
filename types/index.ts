@@ -113,9 +113,11 @@ export interface CustomerInfo {
   name: string;
   mobile: string;
   address: string;
-  pincode: string;
-  city: string;
-  state: string;
+  area?: string;
+  landmark?: string;
+  pincode?: string;
+  city?: string;
+  state?: string;
   instructions?: string;
 }
 

@@ -107,7 +107,11 @@ export default async function OrderSuccessPage({
               <p className="mt-1 text-sm text-muted">
                 {order.customer.address}
                 <br />
-                {order.customer.city}, {order.customer.state} — {order.customer.pincode}
+                {order.customer.area
+                  ? order.customer.area +
+                    (order.customer.landmark ? `, ${order.customer.landmark}` : "")
+                  : [order.customer.city, order.customer.state].filter(Boolean).join(", ") +
+                    (order.customer.pincode ? ` — ${order.customer.pincode}` : "")}
               </p>
               <p className="mt-1 text-sm text-muted">{order.customer.mobile}</p>
               {order.delivery.zoneName && (

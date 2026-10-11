@@ -28,6 +28,8 @@ const OrderSchema = new Schema(
       name: String,
       mobile: String,
       address: String,
+      area: String,
+      landmark: String,
       pincode: String,
       city: String,
       state: String,

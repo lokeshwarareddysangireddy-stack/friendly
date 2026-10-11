@@ -25,7 +25,7 @@ export default function TermsPage() {
           heading: "Orders and pricing",
           body: [
             "An online order is confirmed only after payment is successfully verified on our server. Prices are shown in Indian Rupees and include applicable taxes unless stated otherwise.",
-            "Delivery charges are determined by the delivery zone that matches your pincode and are shown before payment.",
+            "Delivery is free for all online orders delivered within our 20 km delivery range and is applied automatically at checkout.",
           ],
         },
         {

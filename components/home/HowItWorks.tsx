@@ -16,7 +16,7 @@ const STEPS = [
   {
     icon: MapPin,
     title: "Confirm your delivery location",
-    text: "Enter your pincode at checkout. We match it to a configured delivery zone and show the exact charge.",
+    text: "Enter your area and a nearby landmark at checkout. We deliver within a 20 km range.",
   },
   {
     icon: MessageCircle,

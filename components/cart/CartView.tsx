@@ -156,7 +156,7 @@ export function CartView() {
             <div className="flex justify-between">
               <dt className="text-muted">Delivery</dt>
               <dd className="text-right text-xs font-medium text-muted">
-                Calculated by pincode at checkout
+                Free within 20 km
               </dd>
             </div>
             <div className="border-t border-line pt-3">
@@ -167,8 +167,8 @@ export function CartView() {
                 </dd>
               </div>
               <p className="mt-1 text-xs text-muted">
-                Delivery charge and any applicable free-delivery threshold are applied
-                after we match your pincode to a delivery zone.
+                We deliver within a 20 km range. Our team may call you to confirm your
+                delivery location before dispatch.
               </p>
             </div>
           </dl>

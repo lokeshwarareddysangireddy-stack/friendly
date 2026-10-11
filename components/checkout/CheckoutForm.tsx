@@ -1,35 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  Loader2,
-  Lock,
-  MapPin,
-  ShieldCheck,
-  TriangleAlert,
-  Truck,
-  Info,
-} from "lucide-react";
+import { Info, Loader2, Lock, MapPin, ShieldCheck, Truck } from "lucide-react";
 import { useCart } from "@/components/cart/cart-context";
 import { useToast } from "@/components/ui/Toast";
 import { ProductImage } from "@/components/ui/ProductImage";
-import { WhatsAppLink } from "@/components/layout/WhatsAppLink";
-import { WA_TEMPLATES } from "@/lib/whatsapp";
-import { INDIAN_STATES, SITE } from "@/lib/site";
-import { cn, formatINR, isValidIndianMobile, isValidPincode, normalizeMobile } from "@/lib/utils";
-
-interface PricedCart {
-  lines: { productId: string; quantity: number; lineTotal: number }[];
-  subtotal: number;
-  discount: number;
-  deliveryCharge: number;
-  total: number;
-  issues: string[];
-  zone: { name: string; etaText?: string } | null;
-  freeDeliveryApplied: boolean;
-}
+import { SITE } from "@/lib/site";
+import { cn, formatINR, isValidIndianMobile, normalizeMobile } from "@/lib/utils";
 
 interface RazorpayResponse {
   razorpay_payment_id: string;
@@ -51,7 +30,7 @@ const FIELDS = [
   { name: "mobile", label: "Mobile number", placeholder: "10-digit mobile number", autoComplete: "tel" },
 ] as const;
 
-export function CheckoutForm({ whatsappNumber }: { whatsappNumber: string }) {
+export function CheckoutForm() {
   const router = useRouter();
   const { items, subtotal, clear, ready } = useCart();
   const { toast } = useToast();
@@ -60,14 +39,11 @@ export function CheckoutForm({ whatsappNumber }: { whatsappNumber: string }) {
     name: "",
     mobile: "",
     address: "",
-    pincode: "",
-    city: "",
-    state: "",
+    area: "",
+    landmark: "",
     instructions: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [quote, setQuote] = useState<PricedCart | null>(null);
-  const [quoting, setQuoting] = useState(false);
   const [placing, setPlacing] = useState(false);
 
   const cartPayload = useMemo(
@@ -80,45 +56,12 @@ export function CheckoutForm({ whatsappNumber }: { whatsappNumber: string }) {
     setErrors((e) => ({ ...e, [key]: "" }));
   };
 
-  useEffect(() => {
-    if (!isValidPincode(form.pincode)) {
-      setQuote(null);
-      return;
-    }
-    if (!cartPayload.length) return;
-    const controller = new AbortController();
-    const timer = setTimeout(async () => {
-      setQuoting(true);
-      try {
-        const res = await fetch("/api/checkout/quote", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pincode: form.pincode, items: cartPayload }),
-          signal: controller.signal,
-        });
-        const json = await res.json();
-        if (json?.ok) setQuote(json.data.priced);
-        else setQuote(null);
-      } catch {
-        // aborted / failed
-      } finally {
-        setQuoting(false);
-      }
-    }, 400);
-    return () => {
-      controller.abort();
-      clearTimeout(timer);
-    };
-  }, [form.pincode, cartPayload]);
-
   const validate = useCallback(() => {
     const e: Record<string, string> = {};
     if (form.name.trim().length < 2) e.name = "Please enter your full name";
     if (!isValidIndianMobile(form.mobile)) e.mobile = "Enter a valid 10-digit mobile number";
     if (form.address.trim().length < 8) e.address = "Please enter your full delivery address";
-    if (!isValidPincode(form.pincode)) e.pincode = "Enter a valid 6-digit pincode";
-    if (form.city.trim().length < 2) e.city = "Please enter your city";
-    if (!form.state) e.state = "Please select your state";
+    if (form.area.trim().length < 2) e.area = "Please enter your area";
     setErrors(e);
     return Object.keys(e).length === 0;
   }, [form]);
@@ -170,10 +113,6 @@ export function CheckoutForm({ whatsappNumber }: { whatsappNumber: string }) {
       return;
     }
     if (!items.length) return;
-    if (!quote || !quote.zone) {
-      toast("Please enter a pincode we deliver to before paying.", "error");
-      return;
-    }
     setPlacing(true);
     try {
       const res = await fetch("/api/orders/create", {
@@ -184,9 +123,8 @@ export function CheckoutForm({ whatsappNumber }: { whatsappNumber: string }) {
             name: form.name,
             mobile: normalizeMobile(form.mobile),
             address: form.address,
-            pincode: form.pincode,
-            city: form.city,
-            state: form.state,
+            area: form.area,
+            landmark: form.landmark,
             instructions: form.instructions,
           },
           items: cartPayload,
@@ -275,9 +213,6 @@ export function CheckoutForm({ whatsappNumber }: { whatsappNumber: string }) {
     );
   }
 
-  const deliveryCharge = quote?.zone ? quote.deliveryCharge : null;
-  const total = quote?.zone ? quote.subtotal - quote.discount + quote.deliveryCharge : subtotal;
-
   return (
     <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
       <form
@@ -313,7 +248,7 @@ export function CheckoutForm({ whatsappNumber }: { whatsappNumber: string }) {
                 label="Full delivery address"
                 name="address"
                 value={form.address}
-                placeholder="House / flat, street, area"
+                placeholder="House / flat, street, building"
                 autoComplete="street-address"
                 error={errors.address}
                 onChange={(v) => update("address", v)}
@@ -321,125 +256,39 @@ export function CheckoutForm({ whatsappNumber }: { whatsappNumber: string }) {
               />
             </div>
             <Field
-              label="Pincode"
-              name="pincode"
-              value={form.pincode}
-              placeholder="6-digit pincode"
-              autoComplete="postal-code"
-              inputMode="numeric"
-              maxLength={6}
-              error={errors.pincode}
-              onChange={(v) => update("pincode", v.replace(/\D/g, "").slice(0, 6))}
+              label="Area"
+              name="area"
+              value={form.area}
+              placeholder="Area or locality"
+              autoComplete="address-level2"
+              error={errors.area}
+              onChange={(v) => update("area", v)}
             />
             <Field
-              label="City"
-              name="city"
-              value={form.city}
-              placeholder="City"
-              autoComplete="address-level2"
-              error={errors.city}
-              onChange={(v) => update("city", v)}
+              label="Landmark (optional)"
+              name="landmark"
+              value={form.landmark}
+              placeholder="Nearby landmark"
+              error={errors.landmark}
+              onChange={(v) => update("landmark", v)}
             />
-            <div className="sm:col-span-2">
-              <label
-                htmlFor="state"
-                className="mb-1.5 block text-sm font-semibold text-forest"
-              >
-                State
-              </label>
-              <select
-                id="state"
-                value={form.state}
-                onChange={(e) => update("state", e.target.value)}
-                aria-invalid={Boolean(errors.state)}
-                className={cn(
-                  "h-12 w-full rounded-2xl border bg-white px-4 text-sm outline-none transition focus:border-brand",
-                  errors.state ? "border-red-300" : "border-line"
-                )}
-              >
-                <option value="">Select your state</option>
-                {INDIAN_STATES.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-              {errors.state && (
-                <p className="mt-1 text-xs font-medium text-red-600">{errors.state}</p>
-              )}
-            </div>
             <div className="sm:col-span-2">
               <Field
                 label="Delivery instructions (optional)"
                 name="instructions"
                 value={form.instructions}
-                placeholder="Landmark, preferred time, note for the delivery partner"
+                placeholder="Preferred time, note for the delivery partner"
                 onChange={(v) => update("instructions", v)}
                 as="textarea"
               />
             </div>
           </div>
-        </section>
-
-        <section className="rounded-3xl border border-line bg-white p-5 sm:p-6">
-          <h2 className="font-display text-lg font-extrabold text-forest">
-            Delivery zone
-          </h2>
-          <div className="mt-4">
-            {!isValidPincode(form.pincode) ? (
-              <p className="flex items-center gap-2 text-sm text-muted">
-                <MapPin className="h-4 w-4" />
-                Enter your pincode to see your delivery zone and charge.
-              </p>
-            ) : quoting ? (
-              <p className="flex items-center gap-2 text-sm text-muted">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Checking delivery availability for {form.pincode}...
-              </p>
-            ) : quote?.zone ? (
-              <div className="rounded-2xl border border-brand/30 bg-pale p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 font-bold text-forest">
-                    <Truck className="h-4 w-4 text-deep" />
-                    {quote.zone.name}
-                  </div>
-                  <span className="font-display text-base font-extrabold text-forest">
-                    {quote.freeDeliveryApplied
-                      ? "Free delivery"
-                      : formatINR(quote.deliveryCharge)}
-                  </span>
-                </div>
-                {quote.zone.etaText && (
-                  <p className="mt-1 text-xs text-muted">
-                    Estimated delivery: {quote.zone.etaText}
-                  </p>
-                )}
-                {quote.freeDeliveryApplied && (
-                  <p className="mt-1 text-xs font-semibold text-deep">
-                    Free-delivery threshold reached for this zone.
-                  </p>
-                )}
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-                <p className="flex items-start gap-2 text-sm font-semibold text-amber-800">
-                  <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
-                  Online delivery is not currently configured for pincode {form.pincode}.
-                </p>
-                <p className="mt-1 text-xs text-amber-700">
-                  You can still ask us about availability on WhatsApp.
-                </p>
-                <div className="mt-3">
-                  <WhatsAppLink
-                    message={WA_TEMPLATES.general}
-                    number={whatsappNumber}
-                    className="h-10 px-4 text-xs"
-                  >
-                    Enquire on WhatsApp
-                  </WhatsAppLink>
-                </div>
-              </div>
-            )}
+          <div className="mt-5 flex items-start gap-2 rounded-2xl border border-brand/30 bg-pale p-4 text-sm text-forest">
+            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-deep" />
+            <span>
+              <span className="font-bold">We deliver within a 20 km range.</span>{" "}
+              Our team may call you to confirm your exact location before dispatch.
+            </span>
           </div>
         </section>
       </form>
@@ -476,51 +325,27 @@ export function CheckoutForm({ whatsappNumber }: { whatsappNumber: string }) {
           <dl className="mt-5 space-y-2.5 border-t border-line pt-5 text-sm">
             <div className="flex justify-between">
               <dt className="text-muted">Subtotal</dt>
-              <dd className="font-semibold text-forest">
-                {formatINR(quote?.subtotal ?? subtotal)}
-              </dd>
+              <dd className="font-semibold text-forest">{formatINR(subtotal)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-muted">Discount</dt>
-              <dd className="font-semibold text-forest">
-                {formatINR(quote?.discount ?? 0)}
-              </dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-muted">Delivery charge</dt>
-              <dd className="font-semibold text-forest">
-                {deliveryCharge == null ? (
-                  <span className="text-xs font-medium text-muted">Pending pincode</span>
-                ) : quote?.freeDeliveryApplied ? (
-                  <span className="text-brand">Free</span>
-                ) : (
-                  formatINR(deliveryCharge)
-                )}
+              <dt className="text-muted">Delivery</dt>
+              <dd className="inline-flex items-center gap-1 text-brand">
+                <Truck className="h-3.5 w-3.5" />
+                Free within 20 km
               </dd>
             </div>
             <div className="flex justify-between border-t border-line pt-3 text-base">
               <dt className="font-bold text-forest">Total payable</dt>
               <dd className="font-display text-xl font-extrabold text-forest">
-                {formatINR(total)}
+                {formatINR(subtotal)}
               </dd>
             </div>
           </dl>
 
-          {quote?.issues && quote.issues.length > 0 && (
-            <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
-              {quote.issues.map((issue, i) => (
-                <p key={i} className="flex items-start gap-1.5">
-                  <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                  {issue}
-                </p>
-              ))}
-            </div>
-          )}
-
           <button
             type="button"
             onClick={() => void placeOrder()}
-            disabled={placing || !quote?.zone}
+            disabled={placing}
             className="mt-6 flex h-13 w-full items-center justify-center gap-2 rounded-full bg-brand px-6 text-base font-bold text-white transition hover:bg-brand-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {placing ? (
@@ -531,7 +356,7 @@ export function CheckoutForm({ whatsappNumber }: { whatsappNumber: string }) {
             ) : (
               <>
                 <Lock className="h-5 w-5" />
-                Pay {formatINR(total)}
+                Pay {formatINR(subtotal)}
               </>
             )}
           </button>

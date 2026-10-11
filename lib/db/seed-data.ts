@@ -687,7 +687,7 @@ export const SEED_FAQS: FAQDoc[] = [
     _id: "faq_3",
     question: "How is the delivery charge calculated?",
     answer:
-      "Delivery charges depend on your delivery zone, which is matched using your pincode. The exact charge, minimum order value and any free-delivery threshold are shown at checkout before you pay.",
+      "Delivery is free for all orders placed online that fall within our 20 km delivery range. Our team confirms your exact location with you before dispatch.",
     category: "Delivery",
     sortOrder: 3,
     active: true,
@@ -696,9 +696,9 @@ export const SEED_FAQS: FAQDoc[] = [
   },
   {
     _id: "faq_4",
-    question: "What if you do not deliver to my pincode yet?",
+    question: "What if I am outside your delivery range?",
     answer:
-      "If your pincode is not in an active delivery zone, online checkout will not proceed. You can still send us a WhatsApp enquiry and we will let you know if delivery can be arranged.",
+      "If you are beyond our 20 km delivery range, you can still send us a WhatsApp enquiry and we will let you know if a delivery can be arranged.",
     category: "Delivery",
     sortOrder: 4,
     active: true,

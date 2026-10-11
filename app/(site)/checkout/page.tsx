@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
-import { getSettingsSafe } from "@/lib/public-data";
 
 export const dynamic = "force-dynamic";
 
@@ -11,8 +10,6 @@ export const metadata: Metadata = {
 };
 
 export default async function CheckoutPage() {
-  const settings = await getSettingsSafe();
-
   return (
     <>
       <div className="border-b border-line bg-gradient-to-b from-pale/60 to-white">
@@ -21,13 +18,13 @@ export default async function CheckoutPage() {
             Checkout
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-muted">
-            Enter your delivery details, confirm your zone, and pay securely. Your order
-            is confirmed only after payment is verified.
+            Enter your delivery details and pay securely. We deliver within a 20 km
+            range, and your order is confirmed only after payment is verified.
           </p>
         </div>
       </div>
       <section className="container-page py-10">
-        <CheckoutForm whatsappNumber={settings.whatsappNumber} />
+        <CheckoutForm />
       </section>
     </>
   );

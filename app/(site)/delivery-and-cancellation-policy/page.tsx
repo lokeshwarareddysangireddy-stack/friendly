@@ -18,20 +18,20 @@ export default function DeliveryPolicyPage() {
         {
           heading: "Delivery areas",
           body: [
-            "We deliver to areas covered by our configured delivery zones. Enter your pincode at checkout to see whether we deliver to you and the applicable charge.",
-            "If we do not yet deliver to your pincode, you can still send us a WhatsApp enquiry and we will let you know if a delivery can be arranged.",
+            "We deliver within a 20 km range of our location. Enter your area and a nearby landmark at checkout, and we will confirm your exact location with you before dispatch.",
+            "If you are outside our 20 km range, you can still send us a WhatsApp enquiry and we will let you know if a delivery can be arranged.",
           ],
         },
         {
           heading: "Delivery charges",
           body: [
-            "Delivery charges are based on the delivery zone that matches your pincode. Where a free-delivery threshold applies and your order meets it, the charge is waived automatically at checkout.",
+            "Delivery is free for online orders placed within our 20 km delivery range.",
           ],
         },
         {
           heading: "Delivery times",
           body: [
-            "Estimated delivery times are shown for each zone and are indicative. Times may vary depending on order volume, weather and other factors outside our control.",
+            "Whenever possible, we aim to deliver on the same day for orders placed during our working hours. Times may vary depending on order volume, weather and other factors outside our control.",
           ],
         },
         {

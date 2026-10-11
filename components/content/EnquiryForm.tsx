@@ -147,10 +147,10 @@ export function EnquiryForm({ categories }: { categories: string[] }) {
           </select>
         </div>
         <Field
-          label="Delivery location / pincode"
+          label="Delivery area"
           id="location"
           value={form.location}
-          placeholder="Area or pincode"
+          placeholder="Your area or locality"
           onChange={(v) => update("location", v)}
         />
         <div className="sm:col-span-2">

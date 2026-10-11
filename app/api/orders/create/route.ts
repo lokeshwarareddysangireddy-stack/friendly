@@ -34,7 +34,8 @@ export async function POST(request: Request) {
     const lines = sanitizeLines(items);
     if (!lines.length) return jsonError("Your cart is empty", 400);
 
-    const priced = await priceCart(lines, customer.pincode);
+    const pincode = customer.pincode ? String(customer.pincode).replace(/\D/g, "") : "";
+    const priced = await priceCart(lines, pincode || undefined);
 
     const invalid = priced.lines.filter((l) => l.error || !l.product);
     if (invalid.length) {
@@ -43,13 +44,22 @@ export async function POST(request: Request) {
       });
     }
 
-    const quote = await quoteDelivery(customer.pincode, priced.subtotal);
-    if (!quote.supported) {
-      const message =
-        quote.reason === "below_minimum"
-          ? "Your order is below the minimum order value for this delivery zone."
-          : "Online delivery is not currently configured for this pincode. Please send a WhatsApp enquiry.";
-      return jsonError(message, 422, { reason: quote.reason });
+    let deliveryCharge = 0;
+    let zoneId: string | null = null;
+    let zoneName: string | null = null;
+    let zoneCode: string | null = null;
+    let freeDeliveryApplied = false;
+    let etaText = "";
+    if (pincode) {
+      const quote = await quoteDelivery(pincode, priced.subtotal);
+      if (quote.supported) {
+        deliveryCharge = quote.deliveryCharge;
+        zoneId = quote.zone?._id ?? null;
+        zoneName = quote.zone?.name ?? null;
+        zoneCode = quote.zone?.zoneCode ?? null;
+        freeDeliveryApplied = quote.freeDeliveryApplied;
+        etaText = quote.etaText;
+      }
     }
 
     const orderItems: OrderItemSnapshot[] = priced.lines.map((l) => ({
@@ -66,7 +76,6 @@ export async function POST(request: Request) {
 
     const subtotal = priced.subtotal;
     const discount = 0;
-    const deliveryCharge = quote.deliveryCharge;
     const total = subtotal - discount + deliveryCharge;
 
     if (total <= 0) return jsonError("Invalid order total", 422);
@@ -85,18 +94,20 @@ export async function POST(request: Request) {
         name: customer.name,
         mobile: normalizeMobile(customer.mobile),
         address: customer.address,
-        pincode: customer.pincode,
-        city: customer.city,
-        state: customer.state,
+        area: customer.area,
+        landmark: customer.landmark || "",
         instructions: customer.instructions || "",
+        ...(pincode ? { pincode } : {}),
+        ...(customer.city ? { city: customer.city } : {}),
+        ...(customer.state ? { state: customer.state } : {}),
       },
       delivery: {
-        zoneId: quote.zone?._id ?? null,
-        zoneName: quote.zone?.name ?? null,
-        zoneCode: quote.zone?.zoneCode ?? null,
+        zoneId,
+        zoneName,
+        zoneCode,
         deliveryCharge,
-        freeDeliveryApplied: quote.freeDeliveryApplied,
-        etaText: quote.etaText,
+        freeDeliveryApplied,
+        etaText,
       },
       paymentStatus: "pending",
       fulfilmentStatus: "pending",
@@ -108,7 +119,7 @@ export async function POST(request: Request) {
     const rzpOrder = await createRazorpayOrder({
       amount: total,
       receipt: orderId,
-      notes: { orderId, pincode: customer.pincode },
+      notes: { orderId, ...(pincode ? { pincode } : {}) },
     });
 
     await updateOrderByOrderId(orderId, { razorpayOrderId: rzpOrder.id });
