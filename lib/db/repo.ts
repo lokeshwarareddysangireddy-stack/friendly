@@ -3,25 +3,39 @@ import { getMemoryStore, newId, type WebhookEventRec } from "./memory";
 import type {
   AdminUserDoc,
   CategoryDoc,
+  CustomerDoc,
   DeliveryZoneDoc,
   EnquiryDoc,
   FAQDoc,
+  GeoPoint,
+  NewsletterDoc,
+  NotificationLogDoc,
   OrderDoc,
+  OrderTrackDoc,
   PaymentRecordDoc,
   ProductDoc,
   PromotionDoc,
+  ReviewDoc,
+  ReviewStatus,
+  RiderDoc,
   SiteSettingsDoc,
 } from "@/types";
 import {
   AdminUser,
   Category,
+  Customer,
   DeliveryZone,
   Enquiry,
   FAQ,
+  Newsletter,
+  NotificationLog,
   Order,
+  OrderTrack,
   PaymentRecord,
   Product,
   Promotion,
+  Review,
+  Rider,
   SiteSettings,
   WebhookEvent,
 } from "@/models";
@@ -248,7 +262,7 @@ export async function deleteProduct(id: string): Promise<boolean> {
 /* ------------------------------ Categories ------------------------------ */
 
 export async function listCategories(
-  opts: { active?: boolean; includeInactive?: boolean } = {}
+  opts: { active?: boolean; includeInactive?: boolean; status?: any; page?: number; limit?: number } = {}
 ): Promise<CategoryDoc[]> {
   if (isDbConfigured()) {
     await connectDb();
@@ -341,7 +355,7 @@ export async function deleteCategory(id: string): Promise<boolean> {
 /* ---------------------------- Delivery zones ---------------------------- */
 
 export async function listZones(
-  opts: { active?: boolean; includeInactive?: boolean } = {}
+  opts: { active?: boolean; includeInactive?: boolean; status?: any; page?: number; limit?: number } = {}
 ): Promise<DeliveryZoneDoc[]> {
   if (isDbConfigured()) {
     await connectDb();
@@ -483,6 +497,10 @@ export async function createOrder(data: Partial<OrderDoc>): Promise<OrderDoc> {
     paymentStatus: data.paymentStatus || "pending",
     fulfilmentStatus: data.fulfilmentStatus || "pending",
     paymentMethod: data.paymentMethod || "razorpay",
+    customerId: data.customerId ?? null,
+    customerEmail: data.customerEmail ?? null,
+    assignment: data.assignment ?? null,
+    statusHistory: data.statusHistory || [],
     razorpayOrderId: data.razorpayOrderId ?? null,
     razorpayPaymentId: data.razorpayPaymentId ?? null,
     razorpaySignature: data.razorpaySignature ?? null,
@@ -538,6 +556,8 @@ export interface OrderQuery {
   paymentStatus?: string;
   fulfilmentStatus?: string;
   zoneId?: string;
+  customerId?: string;
+  riderId?: string;
   page?: number;
   limit?: number;
 }
@@ -554,6 +574,8 @@ export async function listOrders(
     if (query.paymentStatus) filter.paymentStatus = query.paymentStatus;
     if (query.fulfilmentStatus) filter.fulfilmentStatus = query.fulfilmentStatus;
     if (query.zoneId) filter["delivery.zoneId"] = query.zoneId;
+    if (query.customerId) filter.customerId = query.customerId;
+    if (query.riderId) filter["assignment.riderId"] = query.riderId;
     if (query.q) {
       const rx = new RegExp(query.q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
       filter.$or = [{ orderId: rx }, { "customer.name": rx }, { "customer.mobile": rx }];
@@ -575,6 +597,9 @@ export async function listOrders(
   if (query.fulfilmentStatus)
     items = items.filter((o) => o.fulfilmentStatus === query.fulfilmentStatus);
   if (query.zoneId) items = items.filter((o) => o.delivery.zoneId === query.zoneId);
+  if (query.customerId) items = items.filter((o) => o.customerId === query.customerId);
+  if (query.riderId)
+    items = items.filter((o) => o.assignment?.riderId === query.riderId);
   if (query.q) {
     const needle = query.q.toLowerCase();
     items = items.filter(
@@ -999,6 +1024,653 @@ export async function recordWebhookEvent(
     processedAt: NOW(),
   } as WebhookEventRec);
   return { created: true };
+}
+
+/* -------------------------------- Customers ------------------------------ */
+
+export async function findCustomerByEmail(
+  email: string
+): Promise<CustomerDoc | null> {
+  const normalized = email.toLowerCase().trim();
+  if (isDbConfigured()) {
+    await connectDb();
+    const doc = await Customer.findOne({ email: normalized }).lean();
+    return doc ? serialize<CustomerDoc>(doc) : null;
+  }
+  return (
+    getMemoryStore().customers.find((c) => c.email === normalized) || null
+  );
+}
+
+export async function findCustomerById(id: string): Promise<CustomerDoc | null> {
+  if (isDbConfigured()) {
+    await connectDb();
+    if (!id.match(/^[a-f0-9]{24}$/i)) return null;
+    const doc = await Customer.findById(id).lean();
+    return doc ? serialize<CustomerDoc>(doc) : null;
+  }
+  return getMemoryStore().customers.find((c) => c._id === id) || null;
+}
+
+export async function findCustomerByVerifyToken(
+  token: string
+): Promise<CustomerDoc | null> {
+  if (!token) return null;
+  if (isDbConfigured()) {
+    await connectDb();
+    const doc = await Customer.findOne({ verifyToken: token }).lean();
+    return doc ? serialize<CustomerDoc>(doc) : null;
+  }
+  return getMemoryStore().customers.find((c) => c.verifyToken === token) || null;
+}
+
+export async function findCustomerByResetToken(
+  token: string
+): Promise<CustomerDoc | null> {
+  if (!token) return null;
+  if (isDbConfigured()) {
+    await connectDb();
+    const doc = await Customer.findOne({ resetToken: token }).lean();
+    return doc ? serialize<CustomerDoc>(doc) : null;
+  }
+  return getMemoryStore().customers.find((c) => c.resetToken === token) || null;
+}
+
+export async function createCustomer(
+  data: Partial<CustomerDoc>
+): Promise<CustomerDoc> {
+  if (isDbConfigured()) {
+    await connectDb();
+    const doc = await Customer.create(data);
+    return serialize<CustomerDoc>(doc);
+  }
+  const store = getMemoryStore();
+  const now = NOW();
+  const doc: CustomerDoc = {
+    _id: newId("cust"),
+    email: (data.email || "").toLowerCase().trim(),
+    name: data.name || "",
+    mobile: data.mobile || "",
+    passwordHash: data.passwordHash || "",
+    emailVerified: data.emailVerified ?? false,
+    verifyToken: data.verifyToken ?? null,
+    verifyTokenExpiry: data.verifyTokenExpiry ?? null,
+    resetToken: data.resetToken ?? null,
+    resetTokenExpiry: data.resetTokenExpiry ?? null,
+    addresses: data.addresses || [],
+    wishlist: data.wishlist || [],
+    cart: data.cart || [],
+    active: data.active ?? true,
+    lastLoginAt: data.lastLoginAt ?? null,
+    createdAt: now,
+    updatedAt: now,
+  };
+  store.customers.push(doc);
+  return doc;
+}
+
+export async function updateCustomer(
+  id: string,
+  patch: Partial<CustomerDoc>
+): Promise<CustomerDoc | null> {
+  if (isDbConfigured()) {
+    await connectDb();
+    const doc = await Customer.findByIdAndUpdate(id, patch, { new: true }).lean();
+    return doc ? serialize<CustomerDoc>(doc) : null;
+  }
+  const store = getMemoryStore();
+  const idx = store.customers.findIndex((c) => c._id === id);
+  if (idx < 0) return null;
+  store.customers[idx] = { ...store.customers[idx], ...patch, updatedAt: NOW() };
+  return store.customers[idx];
+}
+
+export async function countCustomers(): Promise<number> {
+  if (isDbConfigured()) {
+    await connectDb();
+    return Customer.countDocuments({});
+  }
+  return getMemoryStore().customers.length;
+}
+
+export async function listCustomers(
+  query: { q?: string; page?: number; limit?: number } = {}
+): Promise<{ items: CustomerDoc[]; total: number }> {
+  const page = Math.max(1, query.page || 1);
+  const limit = Math.min(100, Math.max(1, query.limit || 20));
+  if (isDbConfigured()) {
+    await connectDb();
+    const filter: Record<string, unknown> = {};
+    if (query.q) {
+      const rx = new RegExp(query.q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+      filter.$or = [{ email: rx }, { name: rx }, { mobile: rx }];
+    }
+    const [docs, total] = await Promise.all([
+      Customer.find(filter)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      Customer.countDocuments(filter),
+    ]);
+    return { items: serializeMany<CustomerDoc>(docs), total };
+  }
+  const store = getMemoryStore();
+  let items = [...store.customers];
+  if (query.q) {
+    const needle = query.q.toLowerCase();
+    items = items.filter(
+      (c) =>
+        c.email.includes(needle) ||
+        c.name.toLowerCase().includes(needle) ||
+        c.mobile.includes(needle)
+    );
+  }
+  const total = items.length;
+  return { items: items.slice((page - 1) * limit, page * limit), total };
+}
+
+/* --------------------------------- Reviews -------------------------------- */
+
+export async function createReview(
+  data: Partial<ReviewDoc>
+): Promise<ReviewDoc> {
+  if (isDbConfigured()) {
+    await connectDb();
+    const doc = await Review.create(data);
+    return serialize<ReviewDoc>(doc);
+  }
+  const store = getMemoryStore();
+  const now = NOW();
+  const doc: ReviewDoc = {
+    _id: newId("rev"),
+    productId: data.productId || "",
+    productSlug: data.productSlug || "",
+    productName: data.productName || "",
+    customerId: data.customerId ?? null,
+    customerName: data.customerName || "",
+    customerEmail: data.customerEmail || "",
+    rating: data.rating || 5,
+    title: data.title || "",
+    comment: data.comment || "",
+    orderId: data.orderId ?? null,
+    verifiedPurchase: data.verifiedPurchase ?? false,
+    status: data.status || "pending",
+    createdAt: now,
+    updatedAt: now,
+  };
+  store.reviews.unshift(doc);
+  return doc;
+}
+
+export async function getReviewById(id: string): Promise<ReviewDoc | null> {
+  if (isDbConfigured()) {
+    await connectDb();
+    if (!id.match(/^[a-f0-9]{24}$/i)) return null;
+    const doc = await Review.findById(id).lean();
+    return doc ? serialize<ReviewDoc>(doc) : null;
+  }
+  return getMemoryStore().reviews.find((r) => r._id === id) || null;
+}
+
+export async function findReviewByCustomerProduct(
+  customerId: string,
+  productId: string
+): Promise<ReviewDoc | null> {
+  if (isDbConfigured()) {
+    await connectDb();
+    const doc = await Review.findOne({ customerId, productId }).lean();
+    return doc ? serialize<ReviewDoc>(doc) : null;
+  }
+  return (
+    getMemoryStore().reviews.find(
+      (r) => r.customerId === customerId && r.productId === productId
+    ) || null
+  );
+}
+
+export async function updateReview(
+  id: string,
+  patch: Partial<ReviewDoc>
+): Promise<ReviewDoc | null> {
+  if (isDbConfigured()) {
+    await connectDb();
+    const doc = await Review.findByIdAndUpdate(id, patch, { new: true }).lean();
+    return doc ? serialize<ReviewDoc>(doc) : null;
+  }
+  const store = getMemoryStore();
+  const idx = store.reviews.findIndex((r) => r._id === id);
+  if (idx < 0) return null;
+  store.reviews[idx] = { ...store.reviews[idx], ...patch, updatedAt: NOW() };
+  return store.reviews[idx];
+}
+
+export async function deleteReview(id: string): Promise<boolean> {
+  if (isDbConfigured()) {
+    await connectDb();
+    const res = await Review.findByIdAndDelete(id);
+    return Boolean(res);
+  }
+  const store = getMemoryStore();
+  const before = store.reviews.length;
+  store.reviews = store.reviews.filter((r) => r._id !== id);
+  return store.reviews.length < before;
+}
+
+export async function listReviews(
+  query: {
+    status?: ReviewStatus;
+    productSlug?: string;
+    customerId?: string;
+    approved?: boolean;
+    page?: number;
+    limit?: number;
+  } = {}
+): Promise<{ items: ReviewDoc[]; total: number }> {
+  const page = Math.max(1, query.page || 1);
+  const limit = Math.min(100, Math.max(1, query.limit || 20));
+  if (isDbConfigured()) {
+    await connectDb();
+    const filter: Record<string, unknown> = {};
+    if (query.status) filter.status = query.status;
+    else if (query.approved) filter.status = "approved";
+    if (query.productSlug) filter.productSlug = query.productSlug;
+    if (query.customerId) filter.customerId = query.customerId;
+    const [docs, total] = await Promise.all([
+      Review.find(filter)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      Review.countDocuments(filter),
+    ]);
+    return { items: serializeMany<ReviewDoc>(docs), total };
+  }
+  const store = getMemoryStore();
+  let items = [...store.reviews];
+  if (query.status) items = items.filter((r) => r.status === query.status);
+  else if (query.approved) items = items.filter((r) => r.status === "approved");
+  if (query.productSlug) items = items.filter((r) => r.productSlug === query.productSlug);
+  if (query.customerId) items = items.filter((r) => r.customerId === query.customerId);
+  const total = items.length;
+  return { items: items.slice((page - 1) * limit, page * limit), total };
+}
+
+export async function getRatingSummary(
+  productSlug: string
+): Promise<{ average: number; count: number }> {
+  const { items } = await listReviews({ productSlug, approved: true, limit: 100 });
+  if (!items.length) return { average: 0, count: 0 };
+  const sum = items.reduce((acc, r) => acc + r.rating, 0);
+  return {
+    average: Math.round((sum / items.length) * 10) / 10,
+    count: items.length,
+  };
+}
+
+/* --------------------------------- Riders --------------------------------- */
+
+export async function createRider(data: Partial<RiderDoc>): Promise<RiderDoc> {
+  if (isDbConfigured()) {
+    await connectDb();
+    const doc = await Rider.create(data);
+    return serialize<RiderDoc>(doc);
+  }
+  const store = getMemoryStore();
+  const now = NOW();
+  const doc: RiderDoc = {
+    _id: newId("rider"),
+    name: data.name || "",
+    mobile: data.mobile || "",
+    email: data.email || "",
+    passwordHash: data.passwordHash || "",
+    vehicleType: data.vehicleType || "",
+    licensePlate: data.licensePlate || "",
+    active: data.active ?? true,
+    status: data.status || "offline",
+    lastLocation: data.lastLocation ?? null,
+    lastLoginAt: null,
+    createdAt: now,
+    updatedAt: now,
+  };
+  store.riders.push(doc);
+  return doc;
+}
+
+export async function findRiderById(id: string): Promise<RiderDoc | null> {
+  if (isDbConfigured()) {
+    await connectDb();
+    if (!id.match(/^[a-f0-9]{24}$/i)) return null;
+    const doc = await Rider.findById(id).lean();
+    return doc ? serialize<RiderDoc>(doc) : null;
+  }
+  return getMemoryStore().riders.find((r) => r._id === id) || null;
+}
+
+export async function findRiderByMobile(
+  mobile: string
+): Promise<RiderDoc | null> {
+  const normalized = mobile.replace(/\D/g, "");
+  if (isDbConfigured()) {
+    await connectDb();
+    const doc = await Rider.findOne({ mobile: normalized }).lean();
+    return doc ? serialize<RiderDoc>(doc) : null;
+  }
+  return (
+    getMemoryStore().riders.find(
+      (r) => r.mobile.replace(/\D/g, "") === normalized
+    ) || null
+  );
+}
+
+export async function listRiders(
+  opts: { active?: boolean; includeInactive?: boolean; status?: any; page?: number; limit?: number } = {}
+): Promise<RiderDoc[]> {
+  if (isDbConfigured()) {
+    await connectDb();
+    const filter: Record<string, unknown> = {};
+    if (!opts.includeInactive) filter.active = opts.active ?? true;
+    const docs = await Rider.find(filter).sort({ name: 1 }).lean();
+    return serializeMany<RiderDoc>(docs);
+  }
+  const store = getMemoryStore();
+  let items = [...store.riders];
+  if (opts.active !== undefined) items = items.filter((r) => r.active === opts.active);
+  else if (!opts.includeInactive) items = items.filter((r) => r.active);
+  return items.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export async function updateRider(
+  id: string,
+  patch: Partial<RiderDoc>
+): Promise<RiderDoc | null> {
+  if (isDbConfigured()) {
+    await connectDb();
+    const doc = await Rider.findByIdAndUpdate(id, patch, { new: true }).lean();
+    return doc ? serialize<RiderDoc>(doc) : null;
+  }
+  const store = getMemoryStore();
+  const idx = store.riders.findIndex((r) => r._id === id);
+  if (idx < 0) return null;
+  store.riders[idx] = { ...store.riders[idx], ...patch, updatedAt: NOW() };
+  return store.riders[idx];
+}
+
+export async function deleteRider(id: string): Promise<boolean> {
+  if (isDbConfigured()) {
+    await connectDb();
+    const res = await Rider.findByIdAndDelete(id);
+    return Boolean(res);
+  }
+  const store = getMemoryStore();
+  const before = store.riders.length;
+  store.riders = store.riders.filter((r) => r._id !== id);
+  return store.riders.length < before;
+}
+
+export async function countRiders(): Promise<number> {
+  if (isDbConfigured()) {
+    await connectDb();
+    return Rider.countDocuments({});
+  }
+  return getMemoryStore().riders.length;
+}
+
+/* ---------------------------- Order status history ----------------------- */
+
+export async function appendOrderStatus(
+  orderId: string,
+  status: string,
+  by: "system" | "admin" | "rider",
+  note?: string
+): Promise<OrderDoc | null> {
+  const event = { status, at: NOW(), by, note: note || "" };
+  if (isDbConfigured()) {
+    await connectDb();
+    const doc = await Order.findOneAndUpdate(
+      { orderId },
+      { $set: { fulfilmentStatus: status }, $push: { statusHistory: event } },
+      { new: true }
+    ).lean();
+    return doc ? serialize<OrderDoc>(doc) : null;
+  }
+  const store = getMemoryStore();
+  const idx = store.orders.findIndex((o) => o.orderId === orderId);
+  if (idx < 0) return null;
+  const current = store.orders[idx].statusHistory || [];
+  store.orders[idx] = {
+    ...store.orders[idx],
+    fulfilmentStatus: status as OrderDoc["fulfilmentStatus"],
+    statusHistory: [...current, event],
+    updatedAt: NOW(),
+  };
+  return store.orders[idx];
+}
+
+/* ----------------------------- Order tracking ---------------------------- */
+
+export async function getOrderTrack(
+  orderId: string
+): Promise<OrderTrackDoc | null> {
+  if (isDbConfigured()) {
+    await connectDb();
+    const doc = await OrderTrack.findOne({ orderId }).lean();
+    return doc ? serialize<OrderTrackDoc>(doc) : null;
+  }
+  return getMemoryStore().tracks.find((t) => t.orderId === orderId) || null;
+}
+
+const MAX_TRACK_POINTS = 200;
+
+export async function appendTrackPoint(
+  orderId: string,
+  riderId: string,
+  point: GeoPoint
+): Promise<void> {
+  if (isDbConfigured()) {
+    await connectDb();
+    await OrderTrack.findOneAndUpdate(
+      { orderId },
+      {
+        $set: { riderId },
+        $push: { points: { $each: [point], $slice: -MAX_TRACK_POINTS } },
+        $setOnInsert: { orderId },
+      },
+      { upsert: true, new: true }
+    ).exec();
+    return;
+  }
+  const store = getMemoryStore();
+  let track = store.tracks.find((t) => t.orderId === orderId);
+  if (!track) {
+    track = {
+      _id: newId("track"),
+      orderId,
+      riderId,
+      points: [],
+      createdAt: NOW(),
+      updatedAt: NOW(),
+    };
+    store.tracks.push(track);
+  }
+  track.riderId = riderId;
+  track.points = [...track.points, point].slice(-MAX_TRACK_POINTS);
+  track.updatedAt = NOW();
+}
+
+export async function deleteOrderTrack(orderId: string): Promise<void> {
+  if (isDbConfigured()) {
+    await connectDb();
+    await OrderTrack.deleteOne({ orderId }).exec();
+    return;
+  }
+  const store = getMemoryStore();
+  store.tracks = store.tracks.filter((t) => t.orderId !== orderId);
+}
+
+/* --------------------------- Notification logs --------------------------- */
+
+export async function createNotificationLog(
+  data: Partial<NotificationLogDoc>
+): Promise<NotificationLogDoc> {
+  if (isDbConfigured()) {
+    await connectDb();
+    const doc = await NotificationLog.create(data);
+    return serialize<NotificationLogDoc>(doc);
+  }
+  const store = getMemoryStore();
+  const now = NOW();
+  const doc: NotificationLogDoc = {
+    _id: newId("ntf"),
+    channel: data.channel || "email",
+    event: data.event || "",
+    orderId: data.orderId ?? null,
+    recipient: data.recipient || "",
+    subject: data.subject || "",
+    preview: data.preview || "",
+    status: data.status || "skipped",
+    provider: data.provider || "none",
+    providerMessageId: data.providerMessageId ?? null,
+    error: data.error ?? null,
+    createdAt: now,
+    updatedAt: now,
+  };
+  store.notifications.unshift(doc);
+  if (store.notifications.length > 500) store.notifications.length = 500;
+  return doc;
+}
+
+export async function listNotificationLogs(
+  query: {
+    channel?: string;
+    status?: string;
+    event?: string;
+    page?: number;
+    limit?: number;
+  } = {}
+): Promise<{ items: NotificationLogDoc[]; total: number }> {
+  const page = Math.max(1, query.page || 1);
+  const limit = Math.min(100, Math.max(1, query.limit || 30));
+  if (isDbConfigured()) {
+    await connectDb();
+    const filter: Record<string, unknown> = {};
+    if (query.channel) filter.channel = query.channel;
+    if (query.status) filter.status = query.status;
+    if (query.event) filter.event = query.event;
+    const [docs, total] = await Promise.all([
+      NotificationLog.find(filter)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      NotificationLog.countDocuments(filter),
+    ]);
+    return { items: serializeMany<NotificationLogDoc>(docs), total };
+  }
+  const store = getMemoryStore();
+  let items = [...store.notifications];
+  if (query.channel) items = items.filter((n) => n.channel === query.channel);
+  if (query.status) items = items.filter((n) => n.status === query.status);
+  if (query.event) items = items.filter((n) => n.event === query.event);
+  const total = items.length;
+  return { items: items.slice((page - 1) * limit, page * limit), total };
+}
+
+export async function countNotificationLogs(): Promise<number> {
+  if (isDbConfigured()) {
+    await connectDb();
+    return NotificationLog.countDocuments({});
+  }
+  return getMemoryStore().notifications.length;
+}
+
+/* -------------------------------- Newsletter ------------------------------ */
+
+export async function subscribeNewsletter(
+  email: string,
+  source = "footer"
+): Promise<{ created: boolean; doc: NewsletterDoc }> {
+  const normalized = email.toLowerCase().trim();
+  const existing = await findNewsletterByEmail(normalized);
+  if (existing) {
+    if (!existing.active) {
+      const updated = await updateNewsletter(existing._id, { active: true });
+      return { created: true, doc: updated || existing };
+    }
+    return { created: false, doc: existing };
+  }
+  if (isDbConfigured()) {
+    await connectDb();
+    const doc = await Newsletter.create({ email: normalized, source, active: true });
+    return { created: true, doc: serialize<NewsletterDoc>(doc) };
+  }
+  const store = getMemoryStore();
+  const now = NOW();
+  const doc: NewsletterDoc = {
+    _id: newId("nl"),
+    email: normalized,
+    source,
+    active: true,
+    createdAt: now,
+    updatedAt: now,
+  };
+  store.newsletter.unshift(doc);
+  return { created: true, doc };
+}
+
+export async function findNewsletterByEmail(
+  email: string
+): Promise<NewsletterDoc | null> {
+  const normalized = email.toLowerCase().trim();
+  if (isDbConfigured()) {
+    await connectDb();
+    const doc = await Newsletter.findOne({ email: normalized }).lean();
+    return doc ? serialize<NewsletterDoc>(doc) : null;
+  }
+  return (
+    getMemoryStore().newsletter.find((n) => n.email === normalized) || null
+  );
+}
+
+export async function updateNewsletter(
+  id: string,
+  patch: Partial<NewsletterDoc>
+): Promise<NewsletterDoc | null> {
+  if (isDbConfigured()) {
+    await connectDb();
+    const doc = await Newsletter.findByIdAndUpdate(id, patch, { new: true }).lean();
+    return doc ? serialize<NewsletterDoc>(doc) : null;
+  }
+  const store = getMemoryStore();
+  const idx = store.newsletter.findIndex((n) => n._id === id);
+  if (idx < 0) return null;
+  store.newsletter[idx] = { ...store.newsletter[idx], ...patch, updatedAt: NOW() };
+  return store.newsletter[idx];
+}
+
+export async function listNewsletter(
+  query: { page?: number; limit?: number } = {}
+): Promise<{ items: NewsletterDoc[]; total: number }> {
+  const page = Math.max(1, query.page || 1);
+  const limit = Math.min(100, Math.max(1, query.limit || 50));
+  if (isDbConfigured()) {
+    await connectDb();
+    const [docs, total] = await Promise.all([
+      Newsletter.find({})
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      Newsletter.countDocuments({}),
+    ]);
+    return { items: serializeMany<NewsletterDoc>(docs), total };
+  }
+  const store = getMemoryStore();
+  const items = [...store.newsletter];
+  return {
+    items: items.slice((page - 1) * limit, page * limit),
+    total: items.length,
+  };
 }
 
 export { isDbConfigured };

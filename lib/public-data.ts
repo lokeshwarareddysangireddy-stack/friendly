@@ -4,6 +4,7 @@ import {
   listFaqs,
   listProducts,
   listPromotions,
+  listReviews,
 } from "@/lib/db";
 import { SEED_SETTINGS } from "@/lib/db/seed-data";
 import type {
@@ -11,6 +12,7 @@ import type {
   FAQDoc,
   ProductDoc,
   PromotionDoc,
+  ReviewDoc,
   SiteSettingsDoc,
 } from "@/types";
 
@@ -44,4 +46,16 @@ export function getActiveFaqs(): Promise<FAQDoc[]> {
 
 export function getActivePromotions(): Promise<PromotionDoc[]> {
   return safe(() => listPromotions({ active: true }), []);
+}
+
+export function getApprovedReviews(
+  limit = 6
+): Promise<{ reviews: ReviewDoc[]; total: number }> {
+  return safe(
+    async () => {
+      const result = await listReviews({ approved: true, limit });
+      return { reviews: result.items, total: result.total };
+    },
+    { reviews: [], total: 0 }
+  );
 }

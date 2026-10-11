@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { Badge } from "@/components/ui/Badge";
+import { ProductReviews } from "@/components/products/ProductReviews";
 import { useCart } from "@/components/cart/cart-context";
 import { useToast } from "@/components/ui/Toast";
 import { WhatsAppLink } from "@/components/layout/WhatsAppLink";
@@ -54,7 +55,8 @@ export function ProductDetail({
   };
 
   return (
-    <div className="grid gap-10 lg:grid-cols-2">
+    <>
+      <div className="grid gap-10 lg:grid-cols-2">
       <div>
         <div className="overflow-hidden rounded-[2rem] border border-line bg-white">
           <ProductImage
@@ -225,6 +227,8 @@ export function ProductDetail({
           </p>
         )}
       </div>
-    </div>
+      </div>
+      <ProductReviews productSlug={product.slug} productName={product.name} />
+    </>
   );
 }

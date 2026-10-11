@@ -15,6 +15,7 @@ import { FinalCta } from "@/components/home/FinalCta";
 import {
   getActiveCategories,
   getActiveFaqs,
+  getApprovedReviews,
   getFeaturedProducts,
   getSettingsSafe,
 } from "@/lib/public-data";
@@ -28,11 +29,12 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [settings, categories, featured, faqs] = await Promise.all([
+  const [settings, categories, featured, faqs, testimonials] = await Promise.all([
     getSettingsSafe(),
     getActiveCategories(),
     getFeaturedProducts(8),
     getActiveFaqs(),
+    getApprovedReviews(6),
   ]);
 
   const structuredData = {
@@ -72,7 +74,7 @@ export default async function HomePage() {
         whatsappNumber={settings.whatsappNumber}
       />
       <WhyChoose />
-      <Testimonials />
+      <Testimonials reviews={testimonials.reviews} total={testimonials.total} />
       <WhatsAppOrder whatsappNumber={settings.whatsappNumber} />
       <FaqSection faqs={faqs} limit={6} />
       <FinalCta whatsappNumber={settings.whatsappNumber} />

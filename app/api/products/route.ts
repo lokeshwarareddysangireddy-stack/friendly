@@ -14,9 +14,19 @@ export async function GET(request: NextRequest) {
         : "featured"
     ) as "featured" | "price-asc" | "price-desc" | "newest" | "name";
 
+    const idsParam = searchParams.get("ids");
+    const ids = idsParam
+      ? idsParam
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .slice(0, 100)
+      : undefined;
+
     const result = await listProducts({
       q: searchParams.get("q") || undefined,
       categorySlug: searchParams.get("category") || undefined,
+      ids,
       featured: searchParams.get("featured") === "true" ? true : undefined,
       orderingOnline: searchParams.get("online") === "true" ? true : undefined,
       page: Number(searchParams.get("page") || 1),
@@ -24,7 +34,12 @@ export async function GET(request: NextRequest) {
       sort,
     });
 
-    if (!result.items.length && !searchParams.get("q") && !searchParams.get("category")) {
+    if (
+      !result.items.length &&
+      !searchParams.get("q") &&
+      !searchParams.get("category") &&
+      !ids
+    ) {
       return jsonError("No products available", 404);
     }
 

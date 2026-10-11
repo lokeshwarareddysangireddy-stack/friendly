@@ -11,6 +11,7 @@ import {
   MapPin,
   HelpCircle,
   Megaphone,
+  Star,
   Settings,
   MessageSquare,
   LogOut,
@@ -29,6 +30,7 @@ const NAV = [
   { label: "Delivery Zones", href: "/admin/zones", icon: MapPin },
   { label: "FAQs", href: "/admin/faqs", icon: HelpCircle },
   { label: "Promotions", href: "/admin/promotions", icon: Megaphone },
+  { label: "Reviews", href: "/admin/reviews", icon: Star },
   { label: "Enquiries", href: "/admin/enquiries", icon: MessageSquare },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];

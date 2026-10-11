@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { createOrder, createPaymentRecord, updateOrderByOrderId } from "@/lib/db";
+import { getCustomerSession } from "@/lib/auth/customer-session";
 import { priceCart, sanitizeLines } from "@/lib/cart/pricing";
 import { quoteDelivery } from "@/lib/delivery";
 import { createRazorpayOrder, isRazorpayConfigured } from "@/lib/payments/razorpay";
@@ -33,6 +34,20 @@ export async function POST(request: Request) {
     const { customer, items } = parsed.data;
     const lines = sanitizeLines(items);
     if (!lines.length) return jsonError("Your cart is empty", 400);
+
+    const session = await getCustomerSession();
+    if (process.env.REQUIRE_EMAIL_VERIFICATION === "true") {
+      if (!session) {
+        return jsonError("Please sign in to place your order.", 401, {
+          reason: "auth_required",
+        });
+      }
+      if (!session.emailVerified) {
+        return jsonError("Please verify your email before placing your order.", 403, {
+          reason: "email_verification_required",
+        });
+      }
+    }
 
     const priced = await priceCart(lines, customer.pincode);
 
@@ -90,6 +105,8 @@ export async function POST(request: Request) {
         state: customer.state,
         instructions: customer.instructions || "",
       },
+      customerId: session?.sub ?? null,
+      customerEmail: session?.email ?? null,
       delivery: {
         zoneId: quote.zone?._id ?? null,
         zoneName: quote.zone?.name ?? null,

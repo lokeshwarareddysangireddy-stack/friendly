@@ -16,6 +16,7 @@ import { useCart } from "@/components/cart/cart-context";
 import { useToast } from "@/components/ui/Toast";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { WhatsAppLink } from "@/components/layout/WhatsAppLink";
+import { useCustomer } from "@/components/auth/customer-context";
 import { WA_TEMPLATES } from "@/lib/whatsapp";
 import { INDIAN_STATES, SITE } from "@/lib/site";
 import { cn, formatINR, isValidIndianMobile, isValidPincode, normalizeMobile } from "@/lib/utils";
@@ -55,6 +56,7 @@ export function CheckoutForm({ whatsappNumber }: { whatsappNumber: string }) {
   const router = useRouter();
   const { items, subtotal, clear, ready } = useCart();
   const { toast } = useToast();
+  const { customer, loading: customerLoading } = useCustomer();
 
   const [form, setForm] = useState({
     name: "",
@@ -173,6 +175,18 @@ export function CheckoutForm({ whatsappNumber }: { whatsappNumber: string }) {
     if (!quote || !quote.zone) {
       toast("Please enter a pincode we deliver to before paying.", "error");
       return;
+    }
+    if (process.env.NEXT_PUBLIC_REQUIRE_EMAIL_VERIFICATION === "true") {
+      if (!customer) {
+        toast("Please sign in and verify your email to place your order.", "error");
+        router.push(`/login?next=/checkout`);
+        return;
+      }
+      if (!customer.emailVerified) {
+        toast("Please verify your email before placing your order.", "error");
+        router.push("/account");
+        return;
+      }
     }
     setPlacing(true);
     try {
