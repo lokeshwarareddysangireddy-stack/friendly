@@ -2,25 +2,44 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ServiceCategories } from "@/components/home/ServiceCategories";
+import { ServicesCatalog } from "@/components/services/ServicesCatalog";
 import { HowItWorks } from "@/components/home/HowItWorks";
 import { FinalCta } from "@/components/home/FinalCta";
-import { getActiveCategories, getSettingsSafe } from "@/lib/public-data";
+import {
+  getActiveCategories,
+  getActiveProducts,
+  getSettingsSafe,
+} from "@/lib/public-data";
 import { SITE } from "@/lib/site";
+import type { ProductDoc } from "@/types";
 
 export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "All Services",
   description:
-    "Explore all Friendly Basket services: cafe-style food, biryanis, curries and meals, grocery and daily needs, fruits and vegetables, and health essentials.",
+    "Explore all Friendly Basket services: cafe-style food, biryanis, curries and meals, grocery and daily needs, fruits and vegetables, health essentials and custom requests.",
   alternates: { canonical: "/services" },
 };
 
 export default async function ServicesPage() {
-  const [settings, categories] = await Promise.all([
+  const [settings, categories, products] = await Promise.all([
     getSettingsSafe(),
     getActiveCategories(),
+    getActiveProducts(100),
   ]);
+
+  const productsByCategory = products.reduce<Record<string, ProductDoc[]>>(
+    (acc, product) => {
+      (acc[product.categorySlug] ||= []).push(product);
+      return acc;
+    },
+    {}
+  );
+
+  const productCounts = Object.fromEntries(
+    Object.entries(productsByCategory).map(([slug, items]) => [slug, items.length])
+  ) as Record<string, number>;
 
   return (
     <>
@@ -40,9 +59,19 @@ export default async function ServicesPage() {
         </div>
       </div>
 
-      <div className="container-page pt-4">
-        <ServiceCategories categories={categories} />
-      </div>
+      <ServiceCategories
+        categories={categories}
+        productCounts={productCounts}
+        whatsappNumber={settings.whatsappNumber}
+      />
+
+      {categories.length > 0 && (
+        <ServicesCatalog
+          categories={categories}
+          productsByCategory={productsByCategory}
+          whatsappNumber={settings.whatsappNumber}
+        />
+      )}
 
       <HowItWorks />
 

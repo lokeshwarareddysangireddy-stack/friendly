@@ -69,6 +69,20 @@ export const SEED_CATEGORIES: CategoryDoc[] = [
     createdAt: NOW,
     updatedAt: NOW,
   },
+  {
+    _id: "cat_other-services",
+    name: "Other Services",
+    slug: "other-services",
+    description:
+      "Anything else you need from around the neighbourhood — custom requests, special items and one-off errands handled over WhatsApp.",
+    image: { url: "/images/lifestyle/delivery-bag.jpg", alt: "Other services" },
+    sortOrder: 5,
+    active: true,
+    orderingMethod: "enquiry",
+    highlights: ["Custom requests", "Special items", "Local errands"],
+    createdAt: NOW,
+    updatedAt: NOW,
+  },
 ];
 
 type SeedProduct = {

@@ -5,8 +5,12 @@ import { ChevronRight, Info } from "lucide-react";
 import { CategoryProductBrowser } from "@/components/services/CategoryProductBrowser";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { WhatsAppLink } from "@/components/layout/WhatsAppLink";
-import { listProducts, getCategoryBySlug, getProductFacets } from "@/lib/db";
-import { getActiveCategories, getSettingsSafe } from "@/lib/public-data";
+import { listProducts, getProductFacets } from "@/lib/db";
+import {
+  getActiveCategories,
+  getPublicCategoryBySlug,
+  getSettingsSafe,
+} from "@/lib/public-data";
 import { WA_TEMPLATES } from "@/lib/whatsapp";
 
 export const revalidate = 300;
@@ -17,7 +21,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const category = await getCategoryBySlug(slug);
+  const category = await getPublicCategoryBySlug(slug);
   if (!category) return { title: "Service not found" };
   return {
     title: category.name,
@@ -32,7 +36,7 @@ export default async function ServiceDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const category = await getCategoryBySlug(slug);
+  const category = await getPublicCategoryBySlug(slug);
   if (!category || !category.active) notFound();
 
   const [settings, categories, productResult, facets] = await Promise.all([

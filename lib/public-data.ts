@@ -1,5 +1,6 @@
 import { cache } from "react";
 import {
+  getCategoryBySlug,
   getSettings,
   listCategories,
   listFaqs,
@@ -36,12 +37,50 @@ const seedCategories = SEED_CATEGORIES.filter((c) => c.active);
 const seedFaqs = SEED_FAQS.filter((f) => f.active);
 const seedPromotions = SEED_PROMOTIONS.filter((p) => p.active);
 
+function sortCategories(items: CategoryDoc[]): CategoryDoc[] {
+  return [...items].sort(
+    (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.name.localeCompare(b.name)
+  );
+}
+
+/**
+ * The canonical service categories must always be visible even if a category row
+ * has not been created in the database yet. Existing database categories always
+ * take precedence; only seed categories whose slug is missing are appended, so no
+ * duplicates are ever produced.
+ */
+function mergeWithSeedCategories(dbCategories: CategoryDoc[]): CategoryDoc[] {
+  const seen = new Set(dbCategories.map((c) => c.slug));
+  const merged = [...dbCategories];
+  for (const seed of seedCategories) {
+    if (!seen.has(seed.slug)) merged.push(seed);
+  }
+  return sortCategories(merged);
+}
+
 export const getSettingsSafe = cache((): Promise<SiteSettingsDoc> => {
   return safe(() => getSettings(), SEED_SETTINGS);
 });
 
 export const getActiveCategories = cache((): Promise<CategoryDoc[]> => {
-  return safe(() => listCategories({ active: true }), seedCategories);
+  return safe(
+    async () => mergeWithSeedCategories(await listCategories({ active: true })),
+    seedCategories
+  );
+});
+
+export const getPublicCategoryBySlug = cache(
+  (slug: string): Promise<CategoryDoc | null> => {
+    const fallback = seedCategories.find((c) => c.slug === slug) ?? null;
+    return safe(async () => (await getCategoryBySlug(slug)) ?? fallback, fallback);
+  }
+);
+
+export const getActiveProducts = cache((limit = 100): Promise<ProductDoc[]> => {
+  return safe(
+    () => listProducts({ active: true, limit, sort: "featured" }).then((r) => r.items),
+    SEED_PRODUCTS.filter((p) => p.active).slice(0, limit)
+  );
 });
 
 export const getFeaturedProducts = cache((limit = 8): Promise<ProductDoc[]> => {
