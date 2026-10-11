@@ -3,16 +3,16 @@ import { LegalPage } from "@/components/content/LegalPage";
 import { SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Delivery and Cancellation Policy",
-  description: `How delivery, delivery charges, cancellations and refunds work at ${SITE.name}.`,
+  title: "Delivery Policy",
+  description: `How delivery and delivery charges work at ${SITE.name}.`,
   alternates: { canonical: "/delivery-and-cancellation-policy" },
 };
 
 export default function DeliveryPolicyPage() {
   return (
     <LegalPage
-      title="Delivery and Cancellation Policy"
-      description="How we deliver orders, how charges are calculated, and how cancellations and refunds are handled."
+      title="Delivery Policy"
+      description="How we deliver orders, how charges are calculated, and how order changes are handled."
       updated="1 January 2026"
       sections={[
         {
@@ -35,22 +35,15 @@ export default function DeliveryPolicyPage() {
           ],
         },
         {
-          heading: "Cancellations",
+          heading: "Order changes",
           body: [
-            "You can request cancellation before your order is dispatched by contacting us on WhatsApp. Once an order is out for delivery, cancellation may not be possible.",
-          ],
-        },
-        {
-          heading: "Refunds",
-          body: [
-            "If an item is unavailable, or an order is cancelled before dispatch, any amount already paid for the affected items is refunded to the original payment method.",
-            "Refunds are processed through Razorpay and typically reflect within a few business days, depending on your bank or payment provider.",
+            "If you need to change or cancel your order, please contact us on WhatsApp as soon as possible. Changes depend on whether preparation has already started, and once an order is out for delivery it may no longer be possible to change it.",
           ],
         },
         {
           heading: "Contact",
           body: [
-            `For delivery or cancellation help, message us on WhatsApp at ${SITE.whatsappDisplay}.`,
+            `For delivery help, message us on WhatsApp at ${SITE.whatsappDisplay}.`,
           ],
         },
       ]}

@@ -31,7 +31,7 @@ export default function TermsPage() {
         {
           heading: "Availability and substitutions",
           body: [
-            "If an item becomes unavailable after you order, we will contact you to agree on a suitable substitution, an adjustment, or a refund of the affected amount.",
+            "If an item becomes unavailable after you order, we will contact you to agree on a suitable substitution or an adjustment to your order.",
           ],
         },
         {

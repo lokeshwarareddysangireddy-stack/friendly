@@ -7,7 +7,7 @@ import { FinalCta } from "@/components/home/FinalCta";
 import { getActiveCategories, getSettingsSafe } from "@/lib/public-data";
 import { SITE } from "@/lib/site";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "All Services",

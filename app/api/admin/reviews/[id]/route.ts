@@ -3,6 +3,7 @@ import { requireApiSession } from "@/lib/auth/guard";
 import { deleteReview, updateReview } from "@/lib/db";
 import { zodFields } from "@/lib/admin/helpers";
 import { handleRouteError, jsonError, jsonOk } from "@/lib/http";
+import { revalidatePublicContent } from "@/lib/admin/revalidate";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,7 @@ export async function PATCH(
     }
     const review = await updateReview(id, parsed.data);
     if (!review) return jsonError("Review not found", 404);
+    revalidatePublicContent();
     return jsonOk(review);
   } catch (error) {
     return handleRouteError(error);
@@ -42,6 +44,7 @@ export async function DELETE(
     const { id } = await params;
     const ok = await deleteReview(id);
     if (!ok) return jsonError("Review not found", 404);
+    revalidatePublicContent();
     return jsonOk({ deleted: true });
   } catch (error) {
     return handleRouteError(error);

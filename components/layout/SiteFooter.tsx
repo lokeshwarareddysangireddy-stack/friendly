@@ -8,7 +8,6 @@ import type { NavCategory } from "@/components/layout/Header";
 
 const COMPANY_LINKS = [
   { label: "All Services", href: "/services" },
-  { label: "How It Works", href: "/how-it-works" },
   { label: "About Us", href: "/about" },
   { label: "Contact Us", href: "/contact" },
   { label: "FAQs", href: "/faq" },
@@ -17,7 +16,7 @@ const COMPANY_LINKS = [
 const POLICY_LINKS = [
   { label: "Privacy Policy", href: "/privacy-policy" },
   { label: "Terms and Conditions", href: "/terms-and-conditions" },
-  { label: "Delivery and Cancellation", href: "/delivery-and-cancellation-policy" },
+  { label: "Delivery Policy", href: "/delivery-and-cancellation-policy" },
 ];
 
 export function SiteFooter({

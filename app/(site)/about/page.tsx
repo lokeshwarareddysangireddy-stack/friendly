@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
 import { Sprout, HeartHandshake, ShieldCheck, MapPin } from "lucide-react";
 import { PageHero } from "@/components/content/PageHero";
+import { HowItWorks } from "@/components/home/HowItWorks";
 import { WhyChoose } from "@/components/home/WhyChoose";
+import { FaqSection } from "@/components/home/FaqSection";
 import { FinalCta } from "@/components/home/FinalCta";
-import { getSettingsSafe } from "@/lib/public-data";
+import { getActiveFaqs, getSettingsSafe } from "@/lib/public-data";
 import { SITE } from "@/lib/site";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "About Us",
-  description: `Learn about ${SITE.name} — a local ordering and delivery assistance service built to make everyday needs easier.`,
+  description: `Learn about ${SITE.name} — how ordering works, and the local delivery assistance service built to make everyday needs easier.`,
   alternates: { canonical: "/about" },
 };
 
@@ -38,7 +40,7 @@ const PILLARS = [
 ];
 
 export default async function AboutPage() {
-  const settings = await getSettingsSafe();
+  const [settings, faqs] = await Promise.all([getSettingsSafe(), getActiveFaqs()]);
   return (
     <>
       <PageHero
@@ -85,7 +87,9 @@ export default async function AboutPage() {
         </div>
       </section>
 
+      <HowItWorks compact={false} />
       <WhyChoose />
+      <FaqSection faqs={faqs} limit={6} />
       <FinalCta whatsappNumber={settings.whatsappNumber} />
     </>
   );

@@ -3,6 +3,7 @@ import { settingsInputSchema } from "@/lib/validation/schemas";
 import { requireApiSession } from "@/lib/auth/guard";
 import { zodFields } from "@/lib/admin/helpers";
 import { handleRouteError, jsonError, jsonOk } from "@/lib/http";
+import { revalidatePublicContent } from "@/lib/admin/revalidate";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +29,7 @@ export async function PUT(request: Request) {
       });
     }
     const settings = await updateSettings(parsed.data);
+    revalidatePublicContent();
     return jsonOk(settings);
   } catch (error) {
     return handleRouteError(error);

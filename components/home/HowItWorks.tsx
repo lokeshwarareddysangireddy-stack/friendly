@@ -26,7 +26,7 @@ const STEPS = [
   {
     icon: PackageCheck,
     title: "We prepare and deliver",
-    text: "Your order is accepted, prepared and sent out for delivery. Track its status any time with Order Lookup.",
+    text: "Your order is accepted, prepared and sent out for delivery, and we keep you updated on WhatsApp.",
   },
 ];
 

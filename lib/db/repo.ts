@@ -53,6 +53,9 @@ export interface ProductQuery {
   active?: boolean;
   orderingOnline?: boolean;
   ids?: string[];
+  tags?: string[];
+  minPrice?: number;
+  maxPrice?: number;
   sort?: "featured" | "price-asc" | "price-desc" | "newest" | "name";
   page?: number;
   limit?: number;
@@ -106,6 +109,13 @@ export async function listProducts(
     if (query.featured !== undefined) filter.featured = query.featured;
     if (query.orderingOnline) filter.orderingMethod = { $in: ["online", "both"] };
     if (query.ids && query.ids.length) filter._id = { $in: query.ids };
+    if (query.tags && query.tags.length) filter.tags = { $in: query.tags };
+    if (query.minPrice !== undefined || query.maxPrice !== undefined) {
+      const price: Record<string, number> = {};
+      if (query.minPrice !== undefined) price.$gte = query.minPrice;
+      if (query.maxPrice !== undefined) price.$lte = query.maxPrice;
+      filter.price = price;
+    }
     if (query.q) {
       const rx = new RegExp(query.q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
       filter.$or = [{ name: rx }, { description: rx }, { tags: rx }];
@@ -139,10 +149,75 @@ export async function listProducts(
   if (query.orderingOnline)
     items = items.filter((p) => p.orderingMethod === "online" || p.orderingMethod === "both");
   if (query.ids && query.ids.length) items = items.filter((p) => query.ids!.includes(p._id));
+  if (query.tags && query.tags.length)
+    items = items.filter((p) => (p.tags || []).some((t) => query.tags!.includes(t)));
+  if (query.minPrice !== undefined) items = items.filter((p) => p.price >= query.minPrice!);
+  if (query.maxPrice !== undefined) items = items.filter((p) => p.price <= query.maxPrice!);
   if (query.q) items = items.filter((p) => matchesQuery(p, query.q!));
   const total = items.length;
   const sorted = sortMemoryProducts(items, query.sort);
   return { items: sorted.slice((page - 1) * limit, page * limit), total };
+}
+
+export interface ProductFacets {
+  tags: { value: string; count: number }[];
+  priceMin: number;
+  priceMax: number;
+}
+
+export async function getProductFacets(
+  categorySlug?: string
+): Promise<ProductFacets> {
+  if (isDbConfigured()) {
+    await connectDb();
+    const match: Record<string, unknown> = { active: true };
+    if (categorySlug) match.categorySlug = categorySlug;
+    const rows = await Product.aggregate<{
+      tags: { _id: string; count: number }[];
+      price: { min: number; max: number }[];
+    }>([
+      { $match: match },
+      {
+        $facet: {
+          tags: [
+            { $unwind: "$tags" },
+            { $group: { _id: "$tags", count: { $sum: 1 } } },
+            { $sort: { count: -1, _id: 1 } },
+            { $limit: 24 },
+          ],
+          price: [
+            { $group: { _id: null, min: { $min: "$price" }, max: { $max: "$price" } } },
+          ],
+        },
+      },
+    ]);
+    const facet = rows[0];
+    return {
+      tags: (facet?.tags || []).map((t) => ({ value: t._id, count: t.count })),
+      priceMin: facet?.price?.[0]?.min ?? 0,
+      priceMax: facet?.price?.[0]?.max ?? 0,
+    };
+  }
+
+  const store = getMemoryStore();
+  const items = store.products.filter(
+    (p) => p.active && (!categorySlug || p.categorySlug === categorySlug)
+  );
+  const counts = new Map<string, number>();
+  let min = Infinity;
+  let max = 0;
+  for (const p of items) {
+    for (const t of p.tags || []) counts.set(t, (counts.get(t) || 0) + 1);
+    if (p.price < min) min = p.price;
+    if (p.price > max) max = p.price;
+  }
+  return {
+    tags: [...counts.entries()]
+      .map(([value, count]) => ({ value, count }))
+      .sort((a, b) => b.count - a.count || a.value.localeCompare(b.value)),
+    priceMin: Number.isFinite(min) ? min : 0,
+    priceMax: max,
+  };
 }
 
 export async function getProductBySlug(slug: string): Promise<ProductDoc | null> {

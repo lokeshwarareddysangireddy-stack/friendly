@@ -3,6 +3,7 @@ import { zoneInputSchema } from "@/lib/validation/schemas";
 import { requireApiSession } from "@/lib/auth/guard";
 import { zodFields } from "@/lib/admin/helpers";
 import { handleRouteError, jsonError, jsonOk } from "@/lib/http";
+import { revalidatePublicContent } from "@/lib/admin/revalidate";
 import { rupeesToPaise } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -39,6 +40,7 @@ export async function POST(request: Request) {
           ? rupeesToPaise(data.freeDeliveryThreshold)
           : null,
     });
+    revalidatePublicContent();
     return jsonOk(zone, { status: 201 });
   } catch (error) {
     return handleRouteError(error);

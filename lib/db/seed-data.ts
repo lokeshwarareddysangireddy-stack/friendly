@@ -11,44 +11,16 @@ const NOW = new Date("2026-01-01T00:00:00.000Z").toISOString();
 
 export const SEED_CATEGORIES: CategoryDoc[] = [
   {
-    _id: "cat_cafe-style-food",
-    name: "Cafe-Style Food",
-    slug: "cafe-style-food",
+    _id: "cat_food",
+    name: "Food",
+    slug: "food",
     description:
-      "Pizzas, burgers, sandwiches, thick shakes and desserts prepared fresh to order.",
-    image: { url: "/images/categories/cafe-style-food.jpg", alt: "Cafe-style food" },
+      "Cafe-style favourites, aromatic dum biryanis and comforting curries and meals, all prepared fresh to order.",
+    image: { url: "/images/categories/cafe-style-food.jpg", alt: "Food" },
     sortOrder: 1,
     active: true,
     orderingMethod: "both",
-    highlights: ["Pizzas", "Burgers", "Sandwiches", "Shakes", "Desserts"],
-    createdAt: NOW,
-    updatedAt: NOW,
-  },
-  {
-    _id: "cat_biryanis",
-    name: "Biryanis",
-    slug: "biryanis",
-    description:
-      "Aromatic dum biryanis cooked in small batches, including chicken, mutton and vegetarian options.",
-    image: { url: "/images/categories/biryani.jpg", alt: "Biryanis" },
-    sortOrder: 2,
-    active: true,
-    orderingMethod: "both",
-    highlights: ["Chicken biryani", "Special biryanis", "Veg biryani"],
-    createdAt: NOW,
-    updatedAt: NOW,
-  },
-  {
-    _id: "cat_curries-and-meals",
-    name: "Curries and Meals",
-    slug: "curries-and-meals",
-    description:
-      "Chicken, mutton, fish and vegetarian curries with rice and complete meal options.",
-    image: { url: "/images/categories/curries-meals.jpg", alt: "Curries and meals" },
-    sortOrder: 3,
-    active: true,
-    orderingMethod: "both",
-    highlights: ["Chicken curries", "Mutton curries", "Fish curries", "Veg curries"],
+    highlights: ["Pizzas & burgers", "Biryani", "Curries & meals", "Shakes & desserts"],
     createdAt: NOW,
     updatedAt: NOW,
   },
@@ -59,7 +31,7 @@ export const SEED_CATEGORIES: CategoryDoc[] = [
     description:
       "Groceries, snacks, beverages, packaged foods and household essentials for everyday use.",
     image: { url: "/images/categories/grocery-daily-needs.jpg", alt: "Grocery and daily needs" },
-    sortOrder: 4,
+    sortOrder: 2,
     active: true,
     orderingMethod: "both",
     highlights: ["Groceries", "Snacks", "Beverages", "Household essentials"],
@@ -73,7 +45,7 @@ export const SEED_CATEGORIES: CategoryDoc[] = [
     description:
       "Fresh fruits, everyday vegetables, leafy greens and seasonal produce sourced for quality.",
     image: { url: "/images/categories/fruits-vegetables.jpg", alt: "Fruits and vegetables" },
-    sortOrder: 5,
+    sortOrder: 3,
     active: true,
     orderingMethod: "both",
     highlights: ["Fresh fruits", "Everyday vegetables", "Leafy vegetables", "Seasonal produce"],
@@ -90,7 +62,7 @@ export const SEED_CATEGORIES: CategoryDoc[] = [
       url: "/images/categories/medicines-health.jpg",
       alt: "Medicines and health essentials",
     },
-    sortOrder: 6,
+    sortOrder: 4,
     active: true,
     orderingMethod: "enquiry",
     highlights: ["Requested medicines", "Health essentials", "Basic healthcare products"],
@@ -118,7 +90,7 @@ const RAW_PRODUCTS: SeedProduct[] = [
   {
     name: "Margherita Pizza",
     slug: "margherita-pizza",
-    categorySlug: "cafe-style-food",
+    categorySlug: "food",
     price: 19900,
     mrp: 24900,
     unit: "Regular 7 inch",
@@ -130,7 +102,7 @@ const RAW_PRODUCTS: SeedProduct[] = [
   {
     name: "Farmhouse Pizza",
     slug: "farmhouse-pizza",
-    categorySlug: "cafe-style-food",
+    categorySlug: "food",
     price: 27900,
     mrp: 32900,
     unit: "Regular 7 inch",
@@ -142,7 +114,7 @@ const RAW_PRODUCTS: SeedProduct[] = [
   {
     name: "Classic Veg Burger",
     slug: "classic-veg-burger",
-    categorySlug: "cafe-style-food",
+    categorySlug: "food",
     price: 9900,
     mrp: 12900,
     unit: "Single",
@@ -153,7 +125,7 @@ const RAW_PRODUCTS: SeedProduct[] = [
   {
     name: "Crispy Chicken Burger",
     slug: "crispy-chicken-burger",
-    categorySlug: "cafe-style-food",
+    categorySlug: "food",
     price: 14900,
     mrp: 17900,
     unit: "Single",
@@ -165,7 +137,7 @@ const RAW_PRODUCTS: SeedProduct[] = [
   {
     name: "Grilled Club Sandwich",
     slug: "grilled-club-sandwich",
-    categorySlug: "cafe-style-food",
+    categorySlug: "food",
     price: 12900,
     unit: "6 pieces",
     tags: ["sandwich"],
@@ -175,7 +147,7 @@ const RAW_PRODUCTS: SeedProduct[] = [
   {
     name: "Chocolate Thick Shake",
     slug: "chocolate-thick-shake",
-    categorySlug: "cafe-style-food",
+    categorySlug: "food",
     price: 10900,
     mrp: 12900,
     unit: "300 ml",
@@ -186,7 +158,7 @@ const RAW_PRODUCTS: SeedProduct[] = [
   {
     name: "Oreo Shake",
     slug: "oreo-shake",
-    categorySlug: "cafe-style-food",
+    categorySlug: "food",
     price: 11900,
     unit: "300 ml",
     tags: ["shake", "beverage"],
@@ -196,7 +168,7 @@ const RAW_PRODUCTS: SeedProduct[] = [
   {
     name: "Chocolate Lava Cake",
     slug: "chocolate-lava-cake",
-    categorySlug: "cafe-style-food",
+    categorySlug: "food",
     price: 9900,
     mrp: 11900,
     unit: "Single",
@@ -209,7 +181,7 @@ const RAW_PRODUCTS: SeedProduct[] = [
   {
     name: "Hyderabadi Chicken Dum Biryani",
     slug: "hyderabadi-chicken-dum-biryani",
-    categorySlug: "biryanis",
+    categorySlug: "food",
     price: 22900,
     mrp: 26900,
     unit: "Serves 1",
@@ -221,7 +193,7 @@ const RAW_PRODUCTS: SeedProduct[] = [
   {
     name: "Special Chicken Family Pack Biryani",
     slug: "special-chicken-family-pack-biryani",
-    categorySlug: "biryanis",
+    categorySlug: "food",
     price: 59900,
     mrp: 69900,
     unit: "Serves 3-4",
@@ -233,7 +205,7 @@ const RAW_PRODUCTS: SeedProduct[] = [
   {
     name: "Veg Dum Biryani",
     slug: "veg-dum-biryani",
-    categorySlug: "biryanis",
+    categorySlug: "food",
     price: 17900,
     unit: "Serves 1",
     tags: ["biryani", "vegetarian"],
@@ -243,7 +215,7 @@ const RAW_PRODUCTS: SeedProduct[] = [
   {
     name: "Egg Biryani",
     slug: "egg-biryani",
-    categorySlug: "biryanis",
+    categorySlug: "food",
     price: 16900,
     unit: "Serves 1",
     tags: ["biryani", "egg"],
@@ -253,7 +225,7 @@ const RAW_PRODUCTS: SeedProduct[] = [
   {
     name: "Mutton Dum Biryani",
     slug: "mutton-dum-biryani",
-    categorySlug: "biryanis",
+    categorySlug: "food",
     price: 29900,
     mrp: 34900,
     unit: "Serves 1",
@@ -266,7 +238,7 @@ const RAW_PRODUCTS: SeedProduct[] = [
   {
     name: "Butter Chicken Curry",
     slug: "butter-chicken-curry",
-    categorySlug: "curries-and-meals",
+    categorySlug: "food",
     price: 24900,
     mrp: 28900,
     unit: "Serves 1-2",
@@ -278,7 +250,7 @@ const RAW_PRODUCTS: SeedProduct[] = [
   {
     name: "Home Style Chicken Curry",
     slug: "home-style-chicken-curry",
-    categorySlug: "curries-and-meals",
+    categorySlug: "food",
     price: 21900,
     unit: "Serves 1-2",
     tags: ["curry", "chicken"],
@@ -288,7 +260,7 @@ const RAW_PRODUCTS: SeedProduct[] = [
   {
     name: "Mutton Rogan Josh",
     slug: "mutton-rogan-josh",
-    categorySlug: "curries-and-meals",
+    categorySlug: "food",
     price: 32900,
     mrp: 37900,
     unit: "Serves 1-2",
@@ -299,7 +271,7 @@ const RAW_PRODUCTS: SeedProduct[] = [
   {
     name: "Andhra Fish Curry",
     slug: "andhra-fish-curry",
-    categorySlug: "curries-and-meals",
+    categorySlug: "food",
     price: 27900,
     unit: "Serves 1-2",
     tags: ["curry", "fish"],
@@ -309,7 +281,7 @@ const RAW_PRODUCTS: SeedProduct[] = [
   {
     name: "Mixed Veg Curry",
     slug: "mixed-veg-curry",
-    categorySlug: "curries-and-meals",
+    categorySlug: "food",
     price: 16900,
     unit: "Serves 1-2",
     tags: ["curry", "vegetarian"],
@@ -319,7 +291,7 @@ const RAW_PRODUCTS: SeedProduct[] = [
   {
     name: "Steamed Rice",
     slug: "steamed-rice",
-    categorySlug: "curries-and-meals",
+    categorySlug: "food",
     price: 6900,
     unit: "Serves 1",
     tags: ["rice", "vegetarian"],
@@ -759,7 +731,7 @@ export const SEED_FAQS: FAQDoc[] = [
     _id: "faq_7",
     question: "Can I cancel or modify my order?",
     answer:
-      "Please contact us on WhatsApp as soon as possible. Cancellation and modification depend on whether preparation has already started. See our Delivery and Cancellation Policy for details.",
+      "Please contact us on WhatsApp as soon as possible. Cancellation and modification depend on whether preparation has already started. See our Delivery Policy for details.",
     category: "Orders",
     sortOrder: 7,
     active: true,

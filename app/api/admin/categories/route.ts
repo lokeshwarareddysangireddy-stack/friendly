@@ -3,6 +3,7 @@ import { categoryInputSchema } from "@/lib/validation/schemas";
 import { requireApiSession } from "@/lib/auth/guard";
 import { zodFields } from "@/lib/admin/helpers";
 import { handleRouteError, jsonError, jsonOk } from "@/lib/http";
+import { revalidatePublicContent } from "@/lib/admin/revalidate";
 import { slugify } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
       return jsonError("A category with this slug already exists", 409);
     }
     const category = await createCategory({ ...data, slug });
+    revalidatePublicContent();
     return jsonOk(category, { status: 201 });
   } catch (error) {
     return handleRouteError(error);

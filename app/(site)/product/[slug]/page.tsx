@@ -15,7 +15,7 @@ import { getSettingsSafe } from "@/lib/public-data";
 import { truncate } from "@/lib/utils";
 import { SITE } from "@/lib/site";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export async function generateMetadata({
   params,

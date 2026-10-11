@@ -213,7 +213,7 @@ export function FaqsManager({ initialItems }: { initialItems: FAQDoc[] }) {
               Add an FAQ
             </h2>
             <p className="mt-1 text-sm text-muted">
-              FAQs appear on the home, FAQ and how-it-works pages.
+              FAQs appear on the home, FAQ and about pages.
             </p>
             <button
               type="button"

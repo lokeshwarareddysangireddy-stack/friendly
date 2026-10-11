@@ -5,11 +5,11 @@ import { ChevronRight, Info } from "lucide-react";
 import { CategoryProductBrowser } from "@/components/services/CategoryProductBrowser";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { WhatsAppLink } from "@/components/layout/WhatsAppLink";
-import { listProducts, getCategoryBySlug } from "@/lib/db";
+import { listProducts, getCategoryBySlug, getProductFacets } from "@/lib/db";
 import { getActiveCategories, getSettingsSafe } from "@/lib/public-data";
 import { WA_TEMPLATES } from "@/lib/whatsapp";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export async function generateMetadata({
   params,
@@ -35,10 +35,11 @@ export default async function ServiceDetailPage({
   const category = await getCategoryBySlug(slug);
   if (!category || !category.active) notFound();
 
-  const [settings, categories, productResult] = await Promise.all([
+  const [settings, categories, productResult, facets] = await Promise.all([
     getSettingsSafe(),
     getActiveCategories(),
     listProducts({ categorySlug: slug, limit: 12, sort: "featured" }),
+    getProductFacets(slug),
   ]);
 
   const others = categories.filter((c) => c.slug !== slug).slice(0, 5);
@@ -120,6 +121,7 @@ export default async function ServiceDetailPage({
           orderingMethod={category.orderingMethod}
           initialItems={productResult.items}
           initialTotal={productResult.total}
+          facets={facets}
           whatsappNumber={settings.whatsappNumber}
         />
       </section>

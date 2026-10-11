@@ -8,6 +8,7 @@ import { categoryInputSchema } from "@/lib/validation/schemas";
 import { requireApiSession } from "@/lib/auth/guard";
 import { zodFields } from "@/lib/admin/helpers";
 import { handleRouteError, jsonError, jsonOk } from "@/lib/http";
+import { revalidatePublicContent } from "@/lib/admin/revalidate";
 import { slugify } from "@/lib/utils";
 import type { CategoryDoc } from "@/types";
 
@@ -50,6 +51,7 @@ export async function PATCH(
     }
 
     const category = await updateCategory(id, patch);
+    revalidatePublicContent();
     return jsonOk(category);
   } catch (error) {
     return handleRouteError(error);
@@ -66,6 +68,7 @@ export async function DELETE(
     const { id } = await params;
     const ok = await deleteCategory(id);
     if (!ok) return jsonError("Category not found", 404);
+    revalidatePublicContent();
     return jsonOk({ deleted: true });
   } catch (error) {
     return handleRouteError(error);

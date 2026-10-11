@@ -9,7 +9,7 @@ export function ServiceCategories({ categories }: { categories: CategoryDoc[] })
     <section className="container-page py-16 lg:py-20">
       <SectionHeading
         eyebrow="What we deliver"
-        title="Six ways Friendly Basket helps you"
+        title="Ways Friendly Basket helps you"
         description="Choose a service to browse available items, or send a WhatsApp enquiry for something specific."
         action={{ label: "All services", href: "/services" }}
         align="left"

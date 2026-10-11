@@ -3,6 +3,7 @@ import { faqInputSchema } from "@/lib/validation/schemas";
 import { requireApiSession } from "@/lib/auth/guard";
 import { zodFields } from "@/lib/admin/helpers";
 import { handleRouteError, jsonError, jsonOk } from "@/lib/http";
+import { revalidatePublicContent } from "@/lib/admin/revalidate";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +29,7 @@ export async function POST(request: Request) {
       });
     }
     const faq = await createFaq(parsed.data);
+    revalidatePublicContent();
     return jsonOk(faq, { status: 201 });
   } catch (error) {
     return handleRouteError(error);

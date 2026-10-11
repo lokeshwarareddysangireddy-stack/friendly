@@ -4,7 +4,7 @@ import { FaqSection } from "@/components/home/FaqSection";
 import { FinalCta } from "@/components/home/FinalCta";
 import { getActiveFaqs, getSettingsSafe } from "@/lib/public-data";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Frequently Asked Questions",

@@ -8,7 +8,6 @@ const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || `https://${SITE.domain}`;
 const STATIC_ROUTES = [
   "",
   "/services",
-  "/how-it-works",
   "/about",
   "/contact",
   "/faq",

@@ -9,6 +9,7 @@ import { productInputSchema } from "@/lib/validation/schemas";
 import { requireApiSession } from "@/lib/auth/guard";
 import { zodFields } from "@/lib/admin/helpers";
 import { handleRouteError, jsonError, jsonOk } from "@/lib/http";
+import { revalidatePublicContent } from "@/lib/admin/revalidate";
 import { rupeesToPaise, slugify } from "@/lib/utils";
 import type { ProductDoc } from "@/types";
 
@@ -67,6 +68,7 @@ export async function PATCH(
     if (data.images !== undefined) patch.images = data.images;
 
     const product = await updateProduct(id, patch);
+    revalidatePublicContent();
     return jsonOk(product);
   } catch (error) {
     return handleRouteError(error);
@@ -83,6 +85,7 @@ export async function DELETE(
     const { id } = await params;
     const ok = await deleteProduct(id);
     if (!ok) return jsonError("Product not found", 404);
+    revalidatePublicContent();
     return jsonOk({ deleted: true });
   } catch (error) {
     return handleRouteError(error);

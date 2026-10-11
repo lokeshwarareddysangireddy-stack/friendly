@@ -3,6 +3,7 @@ import { zoneInputSchema } from "@/lib/validation/schemas";
 import { requireApiSession } from "@/lib/auth/guard";
 import { zodFields } from "@/lib/admin/helpers";
 import { handleRouteError, jsonError, jsonOk } from "@/lib/http";
+import { revalidatePublicContent } from "@/lib/admin/revalidate";
 import { rupeesToPaise } from "@/lib/utils";
 import type { DeliveryZoneDoc } from "@/types";
 
@@ -47,6 +48,7 @@ export async function PATCH(
     if (data.notes !== undefined) patch.notes = data.notes;
 
     const zone = await updateZone(id, patch);
+    revalidatePublicContent();
     return jsonOk(zone);
   } catch (error) {
     return handleRouteError(error);
@@ -63,6 +65,7 @@ export async function DELETE(
     const { id } = await params;
     const ok = await deleteZone(id);
     if (!ok) return jsonError("Zone not found", 404);
+    revalidatePublicContent();
     return jsonOk({ deleted: true });
   } catch (error) {
     return handleRouteError(error);

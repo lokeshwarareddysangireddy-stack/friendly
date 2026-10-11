@@ -3,6 +3,7 @@ import { faqInputSchema } from "@/lib/validation/schemas";
 import { requireApiSession } from "@/lib/auth/guard";
 import { zodFields } from "@/lib/admin/helpers";
 import { handleRouteError, jsonError, jsonOk } from "@/lib/http";
+import { revalidatePublicContent } from "@/lib/admin/revalidate";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ export async function PATCH(
     }
     const faq = await updateFaq(id, parsed.data);
     if (!faq) return jsonError("FAQ not found", 404);
+    revalidatePublicContent();
     return jsonOk(faq);
   } catch (error) {
     return handleRouteError(error);
@@ -38,6 +40,7 @@ export async function DELETE(
     const { id } = await params;
     const ok = await deleteFaq(id);
     if (!ok) return jsonError("FAQ not found", 404);
+    revalidatePublicContent();
     return jsonOk({ deleted: true });
   } catch (error) {
     return handleRouteError(error);

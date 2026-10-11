@@ -9,27 +9,21 @@ import { buildWhatsAppUrl, WA_TEMPLATES } from "@/lib/whatsapp";
 const NEEDS = [
   {
     img: "/images/categories/cafe-style-food.jpg",
-    title: "Cafe-style food",
-    text: "Pizzas, burgers, sandwiches, shakes and desserts, made fresh to order.",
-    href: "/services/cafe-style-food",
-  },
-  {
-    img: "/images/categories/biryani.jpg",
-    title: "Biryanis",
-    text: "Aromatic dum biryanis in chicken, mutton, egg and vegetarian options.",
-    href: "/services/biryanis",
-  },
-  {
-    img: "/images/categories/curries-meals.jpg",
-    title: "Curries & meals",
-    text: "Chicken, mutton, fish and veg curries with rice and complete meals.",
-    href: "/services/curries-and-meals",
+    title: "Food",
+    text: "Cafe-style favourites, aromatic biryanis and comforting curries and meals, made fresh to order.",
+    href: "/services/food",
   },
   {
     img: "/images/categories/grocery-daily-needs.jpg",
     title: "Grocery & daily needs",
     text: "Groceries, snacks, beverages and household essentials for every day.",
     href: "/services/grocery-and-daily-needs",
+  },
+  {
+    img: "/images/categories/fruits-vegetables.jpg",
+    title: "Fruits & vegetables",
+    text: "Fresh fruits, everyday vegetables, leafy greens and seasonal produce.",
+    href: "/services/fruits-and-vegetables",
   },
   {
     img: "/images/categories/medicines-health.jpg",

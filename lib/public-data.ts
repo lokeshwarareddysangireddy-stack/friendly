@@ -1,3 +1,4 @@
+import { cache } from "react";
 import {
   getSettings,
   listCategories,
@@ -25,37 +26,37 @@ async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
   }
 }
 
-export function getSettingsSafe(): Promise<SiteSettingsDoc> {
+export const getSettingsSafe = cache((): Promise<SiteSettingsDoc> => {
   return safe(() => getSettings(), SEED_SETTINGS);
-}
+});
 
-export function getActiveCategories(): Promise<CategoryDoc[]> {
+export const getActiveCategories = cache((): Promise<CategoryDoc[]> => {
   return safe(() => listCategories({ active: true }), []);
-}
+});
 
-export function getFeaturedProducts(limit = 8): Promise<ProductDoc[]> {
+export const getFeaturedProducts = cache((limit = 8): Promise<ProductDoc[]> => {
   return safe(
     () => listProducts({ featured: true, limit, sort: "featured" }).then((r) => r.items),
     []
   );
-}
+});
 
-export function getActiveFaqs(): Promise<FAQDoc[]> {
+export const getActiveFaqs = cache((): Promise<FAQDoc[]> => {
   return safe(() => listFaqs({ active: true }), []);
-}
+});
 
-export function getActivePromotions(): Promise<PromotionDoc[]> {
+export const getActivePromotions = cache((): Promise<PromotionDoc[]> => {
   return safe(() => listPromotions({ active: true }), []);
-}
+});
 
-export function getApprovedReviews(
-  limit = 6
-): Promise<{ reviews: ReviewDoc[]; total: number }> {
-  return safe(
-    async () => {
-      const result = await listReviews({ approved: true, limit });
-      return { reviews: result.items, total: result.total };
-    },
-    { reviews: [], total: 0 }
-  );
-}
+export const getApprovedReviews = cache(
+  (limit = 6): Promise<{ reviews: ReviewDoc[]; total: number }> => {
+    return safe(
+      async () => {
+        const result = await listReviews({ approved: true, limit });
+        return { reviews: result.items, total: result.total };
+      },
+      { reviews: [], total: 0 }
+    );
+  }
+);

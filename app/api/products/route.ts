@@ -23,10 +23,27 @@ export async function GET(request: NextRequest) {
           .slice(0, 100)
       : undefined;
 
+    const tagsParam = searchParams.get("tags");
+    const tags = tagsParam
+      ? tagsParam
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .slice(0, 20)
+      : undefined;
+
+    const minPriceParam = Number(searchParams.get("minPrice"));
+    const maxPriceParam = Number(searchParams.get("maxPrice"));
+    const minPrice = Number.isFinite(minPriceParam) && minPriceParam > 0 ? minPriceParam : undefined;
+    const maxPrice = Number.isFinite(maxPriceParam) && maxPriceParam > 0 ? maxPriceParam : undefined;
+
     const result = await listProducts({
       q: searchParams.get("q") || undefined,
       categorySlug: searchParams.get("category") || undefined,
       ids,
+      tags,
+      minPrice,
+      maxPrice,
       featured: searchParams.get("featured") === "true" ? true : undefined,
       orderingOnline: searchParams.get("online") === "true" ? true : undefined,
       page: Number(searchParams.get("page") || 1),

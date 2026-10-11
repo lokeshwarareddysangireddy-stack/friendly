@@ -54,9 +54,7 @@ export const INDIAN_STATES = [
 ] as const;
 
 export const SERVICE_CATEGORY_SLUGS = [
-  "cafe-style-food",
-  "biryanis",
-  "curries-and-meals",
+  "food",
   "grocery-and-daily-needs",
   "fruits-and-vegetables",
   "medicines-and-health-essentials",

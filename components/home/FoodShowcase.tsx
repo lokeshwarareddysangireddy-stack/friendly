@@ -9,25 +9,25 @@ const TALL = [
     img: "/images/products/pizza.jpg",
     label: "Wood-style pizzas",
     sub: "Cafe-style food",
-    href: "/services/cafe-style-food",
+    href: "/services/food",
   },
   {
     img: "/images/products/burger.jpg",
     label: "Stacked burgers",
     sub: "Cafe-style food",
-    href: "/services/cafe-style-food",
+    href: "/services/food",
   },
   {
     img: "/images/products/sandwich.jpg",
     label: "Grilled sandwiches",
     sub: "Cafe-style food",
-    href: "/services/cafe-style-food",
+    href: "/services/food",
   },
   {
     img: "/images/products/milkshake-dessert.jpg",
     label: "Thick shakes & desserts",
     sub: "Cafe-style food",
-    href: "/services/cafe-style-food",
+    href: "/services/food",
   },
 ];
 
@@ -36,19 +36,19 @@ const WIDE = [
     img: "/images/products/chicken-biryani.jpg",
     label: "Aromatic biryanis",
     sub: "Biryanis",
-    href: "/services/biryanis",
+    href: "/services/food",
   },
   {
     img: "/images/products/chicken-curry.jpg",
     label: "Slow-cooked curries",
     sub: "Curries & meals",
-    href: "/services/curries-and-meals",
+    href: "/services/food",
   },
   {
     img: "/images/products/veg-meal.jpg",
     label: "Wholesome meals",
     sub: "Curries & meals",
-    href: "/services/curries-and-meals",
+    href: "/services/food",
   },
 ];
 
@@ -107,7 +107,7 @@ export function FoodShowcase() {
           title="Made fresh, delivered warm"
           description="Cafe favourites, dum biryanis and comforting curries — prepared to order and sent straight to your door."
           align="left"
-          action={{ label: "Browse food", href: "/services/cafe-style-food" }}
+          action={{ label: "Browse food", href: "/services/food" }}
         />
 
         <div className="mt-10 grid grid-cols-2 gap-4 lg:grid-cols-4">

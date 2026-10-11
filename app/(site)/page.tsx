@@ -21,6 +21,8 @@ import {
 } from "@/lib/public-data";
 import { SITE } from "@/lib/site";
 
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: `${SITE.name} — ${SITE.tagline}`,
   description:
