@@ -10,8 +10,8 @@ import type { AdminUserDoc } from "@/types";
 export async function ensureInitialAdmin(): Promise<void> {
   const total = await countAdmins();
   if (total > 0) return;
-  const email = (process.env.ADMIN_EMAIL || "admin@friendlybasket.com").toLowerCase();
-  const password = process.env.ADMIN_PASSWORD || "FriendlyBasket@2026";
+  const email = (process.env.ADMIN_EMAIL || "friendlybasket9888@gmail.com").toLowerCase();
+  const password = process.env.ADMIN_PASSWORD || "godiswithme";
   const passwordHash = await bcrypt.hash(password, 10);
   await createAdmin({
     email,
