@@ -127,10 +127,12 @@ export function Hero({ whatsappNumber }: { whatsappNumber: string }) {
               <Image
                 src="/images/hero/friendly-basket-hero.jpg"
                 alt="Friendly Basket grocery basket filled with fresh vegetables, fruits and daily essentials"
-                width={2000}
-                height={1250}
+                width={1280}
+                height={1600}
                 priority
-                sizes="(max-width: 1024px) 90vw, 44vw"
+                fetchPriority="high"
+                quality={82}
+                sizes="(max-width: 640px) 92vw, (max-width: 1024px) 80vw, 620px"
                 className="aspect-[4/5] w-full object-cover sm:aspect-[5/5] lg:aspect-[4/5]"
               />
               <div
@@ -146,6 +148,7 @@ export function Hero({ whatsappNumber }: { whatsappNumber: string }) {
                 alt="Assorted daily groceries"
                 width={1400}
                 height={2100}
+                fetchPriority="low"
                 sizes="160px"
                 className="aspect-[3/4] w-full object-cover"
               />

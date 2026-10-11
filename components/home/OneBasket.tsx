@@ -58,7 +58,7 @@ export function OneBasket({ whatsappNumber }: { whatsappNumber: string }) {
                     alt={n.title}
                     width={1200}
                     height={800}
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
                     className="aspect-[16/11] w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div

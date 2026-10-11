@@ -19,7 +19,7 @@ export function CategoryCard({ category }: { category: CategoryDoc }) {
           seed={category.slug}
           rounded="rounded-none"
           className="aspect-[4/3] w-full"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
         />
         <div
           className="pointer-events-none absolute inset-0 bg-gradient-to-t from-forest/85 via-forest/15 to-transparent"

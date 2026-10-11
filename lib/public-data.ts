@@ -51,9 +51,14 @@ export const getFeaturedProducts = cache((limit = 8): Promise<ProductDoc[]> => {
   );
 });
 
-export const getActiveFaqs = cache((): Promise<FAQDoc[]> => {
-  return safe(() => listFaqs({ active: true }), seedFaqs);
-});
+export const getActiveFaqs = cache(
+  (limit?: number): Promise<FAQDoc[]> => {
+    return safe(
+      () => listFaqs({ active: true, limit }),
+      limit ? seedFaqs.slice(0, limit) : seedFaqs
+    );
+  }
+);
 
 export const getActivePromotions = cache((): Promise<PromotionDoc[]> => {
   return safe(() => listPromotions({ active: true }), seedPromotions);

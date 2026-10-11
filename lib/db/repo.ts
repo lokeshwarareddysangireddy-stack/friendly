@@ -813,18 +813,24 @@ export async function deletePromotion(id: string): Promise<boolean> {
 
 /* --------------------------------- FAQs ---------------------------------- */
 
-export async function listFaqs(opts: { active?: boolean } = {}): Promise<FAQDoc[]> {
+export async function listFaqs(
+  opts: { active?: boolean; limit?: number } = {}
+): Promise<FAQDoc[]> {
   if (isDbConfigured()) {
     await connectDb();
     const filter: Record<string, unknown> = {};
     if (opts.active) filter.active = true;
-    const docs = await FAQ.find(filter).sort({ sortOrder: 1 }).lean();
+    let q = FAQ.find(filter).sort({ sortOrder: 1 }).lean();
+    if (opts.limit) q = q.limit(Math.min(100, opts.limit));
+    const docs = await q;
     return serializeMany<FAQDoc>(docs);
   }
   const store = getMemoryStore();
   let items = [...store.faqs];
   if (opts.active) items = items.filter((f) => f.active);
-  return items.sort((a, b) => a.sortOrder - b.sortOrder);
+  items = items.sort((a, b) => a.sortOrder - b.sortOrder);
+  if (opts.limit) items = items.slice(0, Math.min(100, opts.limit));
+  return items;
 }
 
 export async function createFaq(data: Partial<FAQDoc>): Promise<FAQDoc> {

@@ -35,7 +35,7 @@ export default async function HomePage() {
     getSettingsSafe(),
     getActiveCategories(),
     getFeaturedProducts(8),
-    getActiveFaqs(),
+    getActiveFaqs(6),
     getApprovedReviews(6),
   ]);
 

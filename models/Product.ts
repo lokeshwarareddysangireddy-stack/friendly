@@ -40,6 +40,7 @@ ProductSchema.index(
   { name: "product_text" }
 );
 ProductSchema.index({ active: 1, featured: 1, categorySlug: 1 });
+ProductSchema.index({ active: 1, featured: 1, sortOrder: 1, name: 1 });
 
 export const Product: Model<ProductDoc> =
   (mongoose.models.Product as Model<ProductDoc>) ||

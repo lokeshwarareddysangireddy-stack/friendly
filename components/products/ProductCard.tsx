@@ -71,7 +71,7 @@ export function ProductCard({
           priority={priority}
           rounded="rounded-none"
           className="aspect-[5/4] w-full"
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 300px"
         />
         <div
           className="pointer-events-none absolute inset-0 bg-gradient-to-t from-forest/10 to-transparent"

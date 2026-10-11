@@ -23,11 +23,7 @@ export function FeaturedProducts({
       />
       <div className="mt-10">
         {products.length ? (
-          <ProductGrid
-            products={products}
-            whatsappNumber={whatsappNumber}
-            priorityCount={4}
-          />
+          <ProductGrid products={products} whatsappNumber={whatsappNumber} />
         ) : (
           <EmptyState
             icon={<ShoppingBasket className="h-6 w-6" />}

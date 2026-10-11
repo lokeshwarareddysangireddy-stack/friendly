@@ -76,7 +76,7 @@ export function FreshGroceries({ whatsappNumber }: { whatsappNumber: string }) {
                 alt="Fresh fruits and vegetables"
                 width={1200}
                 height={800}
-                sizes="(max-width: 1024px) 90vw, 30vw"
+                sizes="(max-width: 1024px) 90vw, 600px"
                 className="aspect-[16/9] w-full object-cover"
               />
             </div>
@@ -86,7 +86,7 @@ export function FreshGroceries({ whatsappNumber }: { whatsappNumber: string }) {
                 alt="Fresh everyday vegetables"
                 width={1200}
                 height={800}
-                sizes="(max-width: 1024px) 45vw, 15vw"
+                sizes="(max-width: 1024px) 45vw, 290px"
                 className="aspect-square w-full object-cover"
               />
             </div>
@@ -96,7 +96,7 @@ export function FreshGroceries({ whatsappNumber }: { whatsappNumber: string }) {
                 alt="Fresh groceries arranged on a kitchen counter"
                 width={1400}
                 height={934}
-                sizes="(max-width: 1024px) 45vw, 15vw"
+                sizes="(max-width: 1024px) 45vw, 290px"
                 className="aspect-square w-full object-cover"
               />
             </div>
