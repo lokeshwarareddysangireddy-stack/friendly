@@ -252,6 +252,8 @@ export interface PricedCart {
   lines: CartLineResolved[];
   subtotal: number;
   discount: number;
+  couponCode: string | null;
+  couponError: string | null;
   deliveryCharge: number;
   total: number;
   issues: string[];

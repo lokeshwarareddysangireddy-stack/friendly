@@ -10,9 +10,16 @@ export async function POST(request: Request) {
     const lines = sanitizeLines(body?.items);
     const pincode = String(body?.pincode || "").replace(/\D/g, "");
     if (!lines.length) return jsonError("Your cart is empty", 400);
-    if (!isValidPincode(pincode)) return jsonError("Enter a valid pincode", 422);
+    if (pincode && !isValidPincode(pincode)) return jsonError("Enter a valid pincode", 422);
+    if (body?.couponCode != null && (typeof body.couponCode !== "string" || body.couponCode.length > 40)) {
+      return jsonError("Enter a valid coupon code", 422);
+    }
 
-    const priced = await priceCart(lines, pincode);
+    const priced = await priceCart(lines, pincode || undefined, body?.couponCode || "");
+    if (priced.couponError) return jsonError(priced.couponError, 422);
+    if (priced.lines.some((line) => line.error)) {
+      return jsonError("Some items are unavailable. Please review your cart.", 409);
+    }
     return jsonOk({ priced });
   } catch (error) {
     return handleRouteError(error);

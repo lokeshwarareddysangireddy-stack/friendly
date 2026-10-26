@@ -9,6 +9,7 @@ import { useToast } from "@/components/ui/Toast";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { SITE } from "@/lib/site";
 import { cn, formatINR, isValidIndianMobile, normalizeMobile } from "@/lib/utils";
+import type { PricedCart } from "@/types";
 
 interface RazorpayResponse {
   razorpay_payment_id: string;
@@ -45,11 +46,48 @@ export function CheckoutForm() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [placing, setPlacing] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponError, setCouponError] = useState("");
+  const [checkingCoupon, setCheckingCoupon] = useState(false);
+  const [couponQuote, setCouponQuote] = useState<{
+    cartKey: string;
+    priced: PricedCart;
+  } | null>(null);
 
   const cartPayload = useMemo(
     () => items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
     [items]
   );
+  const cartKey = JSON.stringify(items.map((item) => [item.productId, item.quantity, item.price]));
+  const appliedQuote = couponQuote?.cartKey === cartKey ? couponQuote.priced : null;
+  const payable = appliedQuote?.total ?? subtotal;
+
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError("Enter a coupon code.");
+      return;
+    }
+    setCheckingCoupon(true);
+    setCouponError("");
+    setCouponQuote(null);
+    try {
+      const response = await fetch("/api/checkout/quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: cartPayload, couponCode: couponCode.trim() }),
+      });
+      const json = await response.json();
+      if (!response.ok || !json.ok) {
+        setCouponError(json.error || "Could not apply this coupon.");
+        return;
+      }
+      setCouponQuote({ cartKey, priced: json.data.priced });
+    } catch {
+      setCouponError("Could not check your coupon. Please try again.");
+    } finally {
+      setCheckingCoupon(false);
+    }
+  };
 
   const update = (key: keyof typeof form, value: string) => {
     setForm((f) => ({ ...f, [key]: value }));
@@ -108,6 +146,11 @@ export function CheckoutForm() {
     });
 
   const placeOrder = async () => {
+    if (checkingCoupon || placing) return;
+    if (couponCode.trim() && !appliedQuote?.couponCode) {
+      setCouponError("Apply your coupon or clear it before paying.");
+      return;
+    }
     if (!validate()) {
       toast("Please correct the highlighted fields.", "error");
       return;
@@ -128,6 +171,7 @@ export function CheckoutForm() {
             instructions: form.instructions,
           },
           items: cartPayload,
+          couponCode: appliedQuote?.couponCode || "",
         }),
       });
       const json = await res.json();
@@ -322,11 +366,60 @@ export function CheckoutForm() {
             ))}
           </ul>
 
+          <form
+            className="mt-5 border-t border-line pt-5"
+            onSubmit={(event) => { event.preventDefault(); void applyCoupon(); }}
+          >
+            <label htmlFor="coupon-code" className="mb-2 block text-sm font-semibold text-forest">
+              Coupon code
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="coupon-code"
+                value={couponCode}
+                onChange={(event) => {
+                  setCouponCode(event.target.value.toUpperCase());
+                  setCouponQuote(null);
+                  setCouponError("");
+                }}
+                maxLength={40}
+                disabled={checkingCoupon || placing}
+                autoComplete="off"
+                placeholder="Enter coupon code"
+                aria-invalid={Boolean(couponError)}
+                aria-describedby="coupon-status"
+                className="h-11 min-w-0 flex-1 rounded-xl border border-line px-3 text-sm outline-none focus:border-brand"
+              />
+              <button type="submit" disabled={checkingCoupon || placing || !items.length}
+                className="rounded-xl bg-forest px-4 text-sm font-bold text-white disabled:opacity-60">
+                {checkingCoupon ? "Checking…" : "Apply"}
+              </button>
+            </div>
+            <div id="coupon-status" role="status" className="mt-2 text-xs">
+              {couponError ? <p className="text-red-600">{couponError}</p> : appliedQuote?.couponCode ? (
+                <p className="text-deep">{appliedQuote.couponCode} applied. You save {formatINR(appliedQuote.discount)}.</p>
+              ) : couponQuote ? <p className="text-muted">Your cart changed. Apply the coupon again.</p> : null}
+            </div>
+            {couponCode && (
+              <button type="button" disabled={checkingCoupon || placing}
+                onClick={() => { setCouponCode(""); setCouponQuote(null); setCouponError(""); }}
+                className="mt-2 text-xs font-semibold text-muted underline">
+                Remove coupon
+              </button>
+            )}
+          </form>
+
           <dl className="mt-5 space-y-2.5 border-t border-line pt-5 text-sm">
             <div className="flex justify-between">
               <dt className="text-muted">Subtotal</dt>
-              <dd className="font-semibold text-forest">{formatINR(subtotal)}</dd>
+              <dd className="font-semibold text-forest">{formatINR(appliedQuote?.subtotal ?? subtotal)}</dd>
             </div>
+            {appliedQuote && appliedQuote.discount > 0 && (
+              <div className="flex justify-between text-deep">
+                <dt>Coupon discount</dt>
+                <dd className="font-semibold">−{formatINR(appliedQuote.discount)}</dd>
+              </div>
+            )}
             <div className="flex justify-between">
               <dt className="text-muted">Delivery</dt>
               <dd className="inline-flex items-center gap-1 text-brand">
@@ -337,7 +430,7 @@ export function CheckoutForm() {
             <div className="flex justify-between border-t border-line pt-3 text-base">
               <dt className="font-bold text-forest">Total payable</dt>
               <dd className="font-display text-xl font-extrabold text-forest">
-                {formatINR(subtotal)}
+                {formatINR(payable)}
               </dd>
             </div>
           </dl>
@@ -345,7 +438,7 @@ export function CheckoutForm() {
           <button
             type="button"
             onClick={() => void placeOrder()}
-            disabled={placing}
+            disabled={placing || checkingCoupon}
             className="mt-6 flex h-13 w-full items-center justify-center gap-2 rounded-full bg-brand px-6 text-base font-bold text-white transition hover:bg-brand-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {placing ? (
@@ -356,7 +449,7 @@ export function CheckoutForm() {
             ) : (
               <>
                 <Lock className="h-5 w-5" />
-                Pay {formatINR(subtotal)}
+                Pay {formatINR(payable)}
               </>
             )}
           </button>

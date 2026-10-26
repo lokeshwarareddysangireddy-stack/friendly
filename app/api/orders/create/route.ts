@@ -30,12 +30,13 @@ export async function POST(request: Request) {
       return jsonError("Please correct the highlighted fields", 422, { fields });
     }
 
-    const { customer, items } = parsed.data;
+    const { customer, items, couponCode } = parsed.data;
     const lines = sanitizeLines(items);
     if (!lines.length) return jsonError("Your cart is empty", 400);
 
     const pincode = customer.pincode ? String(customer.pincode).replace(/\D/g, "") : "";
-    const priced = await priceCart(lines, pincode || undefined);
+    const priced = await priceCart(lines, pincode || undefined, couponCode);
+    if (priced.couponError) return jsonError(priced.couponError, 422);
 
     const invalid = priced.lines.filter((l) => l.error || !l.product);
     if (invalid.length) {
@@ -51,7 +52,7 @@ export async function POST(request: Request) {
     let freeDeliveryApplied = false;
     let etaText = "";
     if (pincode) {
-      const quote = await quoteDelivery(pincode, priced.subtotal);
+      const quote = await quoteDelivery(pincode, priced.subtotal - priced.discount);
       if (quote.supported) {
         deliveryCharge = quote.deliveryCharge;
         zoneId = quote.zone?._id ?? null;
@@ -75,7 +76,7 @@ export async function POST(request: Request) {
     }));
 
     const subtotal = priced.subtotal;
-    const discount = 0;
+    const discount = priced.discount;
     const total = subtotal - discount + deliveryCharge;
 
     if (total <= 0) return jsonError("Invalid order total", 422);
@@ -113,6 +114,7 @@ export async function POST(request: Request) {
       fulfilmentStatus: "pending",
       paymentMethod: "razorpay",
       lookupToken,
+      ...(priced.couponCode ? { notes: `Coupon: ${priced.couponCode}` } : {}),
       paidAt: null,
     });
 

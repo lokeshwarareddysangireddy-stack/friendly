@@ -130,19 +130,10 @@ export function SiteFooter({
               </Link>
             ))}
           </div>
-          <p className="mt-4 max-w-4xl text-xs leading-relaxed text-muted">
-            Friendly Basket is a local ordering and delivery assistance service. Medicine
-            items are handled as enquiries; where a valid prescription is legally
-            required, it must be provided. We do not represent ourselves as a licensed
-            pharmacy or a licensed medical provider unless separately confirmed in
-            writing. Prices, availability and delivery charges are confirmed before an
-            online order is placed.
-          </p>
           <div className="mt-4 flex flex-col gap-2 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
             <p>
               &copy; {year} {SITE.name}. All rights reserved.
             </p>
-            <p>Made for {SITE.domain}</p>
           </div>
         </div>
       </div>

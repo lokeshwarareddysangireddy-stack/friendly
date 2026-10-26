@@ -1,5 +1,33 @@
 @import "tailwindcss";
 
+.announcement-track {
+  animation: announcement-scroll 32s linear infinite;
+}
+.announcement-track:hover {
+  animation-play-state: paused;
+}
+@keyframes announcement-scroll {
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .announcement-track {
+    animation: none;
+    width: 100%;
+  }
+  .announcement-track > div {
+    min-width: 0;
+    width: 100%;
+  }
+  .announcement-track > div:nth-child(2),
+  .announcement-track > div > span:nth-child(2) {
+    display: none;
+  }
+  .announcement-track > div > span {
+    white-space: normal;
+    text-align: center;
+  }
+}
+
 @theme {
   /* ---- Brand palette (deep forest + champagne gold) ---- */
   --color-brand: #22c55e;

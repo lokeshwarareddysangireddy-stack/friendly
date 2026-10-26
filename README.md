@@ -66,6 +66,22 @@ accept rupees and convert automatically. Delivery charges are resolved from the 
 zone matching the customer's pincode, including minimum order values and free-delivery
 thresholds.
 
+### Checkout coupons
+
+Set the server-side `COUPONS_JSON` environment variable to enable fixed-amount
+coupon codes. Amounts and minimum subtotals are in rupees; codes are case-insensitive.
+For example:
+
+```json
+[{"code":"SAVE50","amount":50,"minOrder":500,"expiresAt":"2027-01-01T00:00:00Z"}]
+```
+
+The default is `[]` (no active codes). Customers can apply or remove a code at
+checkout. The server checks the code, expiry and minimum subtotal both when quoting
+and when creating the payment. Discounts are capped to leave at least ₹1 payable.
+The applied code is saved in the order notes and the discount appears in receipts.
+Run coupon checks with Node.js 22.18+ using `node --test tests/coupons.test.mjs`.
+
 ## Scripts
 
 ```bash

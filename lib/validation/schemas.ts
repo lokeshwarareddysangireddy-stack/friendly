@@ -33,6 +33,7 @@ export const checkoutSchema = z.object({
     state: z.string().trim().min(2).optional(),
   }),
   items: z.array(cartLineSchema).min(1, "Your cart is empty"),
+  couponCode: z.string().trim().max(40).optional().default(""),
 });
 
 export const enquirySchema = z.object({

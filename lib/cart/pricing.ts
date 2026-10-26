@@ -1,5 +1,6 @@
 import { getProductsByIds } from "@/lib/db";
 import { quoteDelivery } from "@/lib/delivery";
+import { resolveCoupon } from "@/lib/cart/coupons";
 import type { CartLine, CartLineResolved, PricedCart } from "@/types";
 
 export function sanitizeLines(input: unknown): CartLine[] {
@@ -17,7 +18,8 @@ export function sanitizeLines(input: unknown): CartLine[] {
 
 export async function priceCart(
   lines: CartLine[],
-  pincode?: string
+  pincode?: string,
+  couponCode = ""
 ): Promise<PricedCart> {
   const ids = lines.map((l) => l.productId);
   const products = await getProductsByIds(ids);
@@ -76,7 +78,8 @@ export async function priceCart(
     resolved.push({ ...line, product, lineTotal });
   }
 
-  const discount = 0;
+  const coupon = resolveCoupon(couponCode, subtotal);
+  const discount = coupon.discount;
   let deliveryCharge = 0;
   let zone = null as PricedCart["zone"];
   let freeDeliveryApplied = false;
@@ -100,6 +103,8 @@ export async function priceCart(
     lines: resolved,
     subtotal,
     discount,
+    couponCode: coupon.code,
+    couponError: coupon.error,
     deliveryCharge,
     total,
     issues,
