@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "import:grocery-catalog": "node scripts/import-grocery-catalog.mjs"
+    "import:grocery-catalog": "node scripts/import-grocery-catalog.mjs",
+    "update:cooking-oil-prices": "node scripts/update-cooking-oil-prices.mjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
