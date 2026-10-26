@@ -20,6 +20,10 @@ export interface ProductImage {
   url: string;
   publicId?: string;
   alt?: string;
+  sourceUrl?: string;
+  matchStatus?: "exact" | "review_required" | "not_found";
+  verificationStatus?: "verified" | "unverified";
+  usagePermission?: "confirmed" | "unknown" | "restricted";
 }
 
 export interface ProductDoc {

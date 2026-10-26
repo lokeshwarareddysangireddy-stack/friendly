@@ -47,7 +47,8 @@ export function ProductImage({
           fill
           sizes={sizes}
           priority={priority}
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className="object-contain p-3 transition-transform duration-500 group-hover:scale-[1.02]"
+          loading={priority ? "eager" : "lazy"}
         />
       </span>
     );
