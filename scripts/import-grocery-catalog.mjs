@@ -4,8 +4,26 @@ import path from "node:path";
 import mongoose from "mongoose";
 
 const workbookPath = path.resolve(
-  "DMart_718_Updated_With_Online_Price_References-1.xlsx"
+  "Vijayawada_718_Five_Store_Price_Comparison_Plus_10.xlsx"
 );
+
+const VERIFIED_AVERAGE_PRICES = new Map([
+  [1, 98], [2, 53], [3, 425], [4, 93], [5, 45], [6, 375], [7, 93], [8, 45],
+  [9, 375], [10, 78], [11, 43], [12, 450], [13, 95], [14, 75], [15, 750],
+  [16, 80], [17, 55], [18, 625], [19, 140], [20, 83], [21, 550], [22, 110],
+  [23, 55], [24, 400], [25, 85], [26, 45], [27, 350], [28, 105], [29, 50],
+  [30, 400], [31, 105], [32, 50], [33, 350], [34, 110], [35, 45], [36, 400],
+  [37, 70], [38, 38], [39, 300],
+  [40, 170], [41, 85], [42, 650], [43, 140], [44, 65], [45, 600],
+  [46, 120], [47, 60], [48, 750], [49, 145], [50, 100], [51, 800],
+  [52, 160], [53, 90], [54, 700], [55, 140], [56, 65], [57, 550],
+  [58, 120], [59, 65], [60, 500], [61, 120], [62, 55], [63, 450],
+  [64, 180], [65, 80], [66, 750], [67, 170], [68, 75], [69, 900],
+  [70, 120], [71, 90], [72, 800], [73, 130], [74, 75], [75, 600],
+  [76, 150], [77, 65], [78, 600], [79, 110], [80, 55], [81, 450],
+  [82, 130], [83, 60], [84, 500], [85, 150], [86, 70], [87, 600],
+  [88, 140], [89, 65], [90, 750],
+]);
 
 const FRESH_PRODUCTS = [
   ["Fresh Tomato", "1 kg", "vegetable"],
@@ -129,6 +147,7 @@ try {
   const now = new Date();
   const operations = products.map((product) => {
     const id = product.ID.trim();
+    const averagePrice = VERIFIED_AVERAGE_PRICES.get(Number(id));
     const categoryName = product.Category.trim();
     const productType = product["Product Type"].trim();
     const brand = product.Brand.trim();
@@ -137,7 +156,16 @@ try {
     return {
       updateOne: {
         filter: { sku: `DMART-XLSX-${id}` },
-        update: {
+        update: averagePrice
+          ? {
+              $set: {
+                price: (averagePrice + 10) * 100,
+                available: true,
+                active: true,
+                updatedAt: now,
+              },
+            }
+          : {
           $setOnInsert: {
             name,
             slug: `grocery-${id}-${slugify(name)}`,
@@ -168,8 +196,8 @@ try {
             createdAt: now,
             updatedAt: now,
           },
-        },
-        upsert: true,
+          },
+        upsert: !averagePrice,
       },
     };
   });
@@ -220,8 +248,15 @@ try {
   const freshCount = await mongoose.connection.db
     .collection("products")
     .countDocuments({ sku: { $regex: "^FRESH-TARGET-" } });
+  const livePricedCount = await mongoose.connection.db.collection("products").countDocuments({
+    sku: { $regex: "^DMART-XLSX-" },
+    active: true,
+    available: true,
+    price: { $gt: 0 },
+  });
   console.table(categoryCounts.map(({ _id, count }) => ({ category: _id, count })));
   console.log(`Fresh fruit and vegetable targets: ${freshCount}/25.`);
+  console.log(`Live products with supplied prices: ${livePricedCount}.`);
 } finally {
   await mongoose.disconnect();
 }
