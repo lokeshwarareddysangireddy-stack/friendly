@@ -66,6 +66,7 @@ export async function PATCH(
       patch.requiresPrescription = data.requiresPrescription;
     if (data.unit !== undefined) patch.unit = data.unit;
     if (data.images !== undefined) patch.images = data.images;
+    if (data.tags !== undefined) patch.tags = data.tags;
 
     const product = await updateProduct(id, patch);
     revalidatePublicContent();

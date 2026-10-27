@@ -82,6 +82,55 @@ and when creating the payment. Discounts are capped to leave at least ₹1 payab
 The applied code is saved in the order notes and the discount appears in receipts.
 Run coupon checks with Node.js 22.18+ using `node --test tests/coupons.test.mjs`.
 
+## Grocery catalogue & product images
+
+The Grocery & Daily Needs service is **category-first**: `/services/grocery-and-daily-needs`
+lists the 17 grocery categories (2 per row on mobile, 3 on tablet, 4–5 on desktop) with a
+cover image, the live product count and a link into that category. No product imagery is
+downloaded on the landing page — a category's products (and their images) are only requested
+once a shopper opens that category.
+
+### Categories
+
+`lib/grocery-categories.ts` is the single source of truth for the 17 categories, their
+canonical URLs, their cover image and their description. Product counts come from the live
+database (`getGroceryCounts()`), so they are always in sync with what is published.
+
+### Image enrichment
+
+Product imagery is sourced online and stored permanently in Cloudinary.
+
+```bash
+npm run enrich:grocery-images -- --limit=100     # work through the catalogue in batches
+npm run enrich:grocery-images -- --force         # re-source every product
+npm run generate:grocery-images -- --all         # category covers, generics, placeholders
+npm run backfill:grocery-brands                  # recover the brand of every grocery row
+npm run report:grocery-images                    # refresh the audit CSV + markdown report
+```
+
+How a product image is chosen:
+
+1. The brand, product type and pack size are recovered from the catalogue row.
+2. The approved retailer catalogues (Flipkart, Amazon India, BigBasket) are searched with the
+   full brand + product + pack size query.
+3. A candidate is **rejected** unless every distinctive token of the product type is present
+   (wheat atta is never shown for ragi flour) and the pack size matches exactly — `1 kg` is
+   accepted for a `1000 g` listing, but a `5 kg` pack is rejected for a `1 kg` row.
+4. Accepted images are downloaded, checked for type and minimum resolution, cropped free of
+   any generator watermark and stored in Cloudinary.
+5. The product record keeps the image URL plus the original source URL, source website, image
+   type (`official` / `licensed` / `generated` / `placeholder`), match status, verification
+   status and usage permission.
+
+Generic, unbranded groceries get a photorealistic AI-generated packshot. Branded products
+whose exact packshot cannot be found get a clearly identified generic placeholder rather than
+an invented package. The run is resumable — progress is checkpointed in
+`reports/grocery-image-progress.json` and a verified image is never overwritten with a less
+accurate one.
+
+Current coverage is reported in [`reports/grocery-image-report.md`](./reports/grocery-image-report.md)
+with a per-product breakdown in `reports/grocery-image-audit.csv`.
+
 ## Scripts
 
 ```bash

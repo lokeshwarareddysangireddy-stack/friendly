@@ -70,7 +70,7 @@ export async function POST(request: Request) {
       orderingMethod: data.orderingMethod,
       requiresPrescription: data.requiresPrescription,
       unit: data.unit,
-      tags: [],
+      tags: data.tags || [],
     });
     revalidatePublicContent();
     return jsonOk(product, { status: 201 });

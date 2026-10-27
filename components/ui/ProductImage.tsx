@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 const PALETTES = [
@@ -27,6 +30,7 @@ export function ProductImage({
   sizes = "(max-width: 768px) 50vw, 25vw",
   priority = false,
   rounded = "rounded-2xl",
+  fit = "contain",
 }: {
   src?: string | null;
   alt: string;
@@ -35,20 +39,27 @@ export function ProductImage({
   sizes?: string;
   priority?: boolean;
   rounded?: string;
+  fit?: "contain" | "cover";
 }) {
+  const [failed, setFailed] = useState(false);
   const palette = PALETTES[hashString(seed || alt) % PALETTES.length];
+  const resolved = src && !failed ? src : null;
 
-  if (src) {
+  if (resolved) {
     return (
-      <span className={cn("relative block overflow-hidden", rounded, className)}>
+      <span className={cn("relative block overflow-hidden bg-surface", rounded, className)}>
         <Image
-          src={src}
+          src={resolved}
           alt={alt}
           fill
           sizes={sizes}
           priority={priority}
-          className="object-contain p-3 transition-transform duration-500 group-hover:scale-[1.02]"
           loading={priority ? "eager" : "lazy"}
+          onError={() => setFailed(true)}
+          className={cn(
+            "transition-transform duration-500 group-hover:scale-[1.02]",
+            fit === "cover" ? "object-cover" : "object-contain p-3"
+          )}
         />
       </span>
     );

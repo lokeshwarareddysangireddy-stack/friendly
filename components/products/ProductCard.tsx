@@ -18,14 +18,24 @@ function categoryLabel(slug: string) {
     .join(" ");
 }
 
+/** Brand label: the catalogue stores it explicitly, otherwise it leads the name. */
+function brandLabel(product: ProductDoc, grocery: boolean) {
+  if (product.brand) return product.brand;
+  if (grocery) return "";
+  const match = product.name.match(/^([A-Za-z0-9'&.\- ]{2,28}?)\s+(?=[A-Za-z])/);
+  return match ? match[1].trim() : "";
+}
+
 export function ProductCard({
   product,
   whatsappNumber,
   priority = false,
+  grocery = false,
 }: {
   product: ProductDoc;
   whatsappNumber?: string;
   priority?: boolean;
+  grocery?: boolean;
 }) {
   const router = useRouter();
   const { items, addItem, setQuantity } = useCart();
@@ -36,11 +46,12 @@ export function ProductCard({
   const open = () => router.push(href);
 
   const onlineAvailable =
+    (!grocery || product.price > 0) &&
     product.active &&
     product.available &&
     (product.orderingMethod === "online" || product.orderingMethod === "both");
 
-  const off = discountPercent(product.price, product.mrp);
+  const off = grocery && product.price <= 0 ? 0 : discountPercent(product.price, product.mrp);
   const outOfStock =
     product.trackStock && product.stockQty != null && product.stockQty <= 0;
 
@@ -56,6 +67,7 @@ export function ProductCard({
       tabIndex={0}
       onClick={open}
       onKeyDown={(e) => {
+        if (e.target !== e.currentTarget) return;
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           open();
@@ -98,10 +110,17 @@ export function ProductCard({
         )}
       </div>
 
-      <div className="flex flex-1 flex-col p-5">
-        <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-deep">
-          {categoryLabel(product.categorySlug)}
-        </span>
+<div className={cn("flex flex-1 flex-col", grocery ? "p-3 sm:p-5" : "p-5")}>
+        <div className="flex items-center justify-between gap-2">
+          <span className="truncate text-[11px] font-bold uppercase tracking-[0.16em] text-deep">
+            {brandLabel(product, grocery) || categoryLabel(product.categorySlug)}
+          </span>
+          {grocery && product.unit && (
+            <span className="shrink-0 rounded-full bg-surface px-2 py-0.5 text-[10px] font-bold text-muted">
+              {product.unit}
+            </span>
+          )}
+        </div>
         <a
           href={href}
           onClick={(e) => e.stopPropagation()}
@@ -109,20 +128,20 @@ export function ProductCard({
           tabIndex={-1}
           aria-hidden
         >
-          <h3 className="line-clamp-2 font-display text-[15px] font-bold leading-snug text-forest transition group-hover:text-deep">
+          <h3 className={cn("font-display text-[15px] font-bold leading-snug text-forest transition group-hover:text-deep", !grocery && "line-clamp-2")}>
             {product.name}
           </h3>
         </a>
-        {product.unit && (
+        {product.unit && !grocery && (
           <p className="mt-1 text-xs font-medium text-muted">{product.unit}</p>
         )}
 
         <div className="mt-4 flex items-end justify-between gap-2">
-          <div className="flex items-baseline gap-2">
+          <div className="flex flex-wrap items-baseline gap-2">
             <span className="font-display text-lg font-extrabold text-forest">
-              {formatINR(product.price)}
+              {grocery && product.price <= 0 ? "Price on enquiry" : formatINR(product.price)}
             </span>
-            {product.mrp && product.mrp > product.price && (
+            {product.price > 0 && product.mrp && product.mrp > product.price && (
               <span className="text-sm text-muted line-through">
                 {formatINR(product.mrp)}
               </span>
@@ -165,7 +184,7 @@ export function ProductCard({
                   </span>
                   <StepperButton
                     label="Increase quantity"
-                    onClick={() => setQuantity(product._id, inCart.quantity + 1)}
+                    onClick={() => setQuantity(product._id, grocery && product.trackStock && product.stockQty != null ? Math.min(product.stockQty, inCart.quantity + 1) : inCart.quantity + 1)}
                   >
                     <Plus className="h-4 w-4" />
                   </StepperButton>

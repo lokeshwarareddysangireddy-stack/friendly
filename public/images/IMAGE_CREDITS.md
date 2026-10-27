@@ -1,6 +1,45 @@
 # Image Credits & Asset Notes
 
-All photographs in `public/images/` are **license-free stock placeholders** sourced from
+## Grocery category covers (`categories/grocery/`)
+
+The 17 grocery category covers and the "more grocery" cover are **AI-generated product
+photography** produced by the open text-to-image endpoint
+[Pollinations](https://pollinations.ai) (`https://image.pollinations.ai/prompt/...`), rendered by
+`scripts/generate-grocery-images.mjs`. They contain no third-party logos or packaging, and the
+generator watermark is cropped off before the file is written.
+
+| File | Aspect | Source |
+| --- | --- | --- |
+| `categories/grocery/rice-and-rice-products.jpg` | 4:3 | AI generated (Pollinations) |
+| `categories/grocery/dals-and-pulses.jpg` | 4:3 | AI generated (Pollinations) |
+| `categories/grocery/flour-and-grains.jpg` | 4:3 | AI generated (Pollinations) |
+| `categories/grocery/cooking-oils-and-ghee.jpg` | 4:3 | AI generated (Pollinations) |
+| `categories/grocery/salt-sugar-and-jaggery.jpg` | 4:3 | AI generated (Pollinations) |
+| `categories/grocery/spices-and-masalas.jpg` | 4:3 | AI generated (Pollinations) |
+| `categories/grocery/dry-fruits-nuts-and-seeds.jpg` | 4:3 | AI generated (Pollinations) |
+| `categories/grocery/breakfast-and-cereals.jpg` | 4:3 | AI generated (Pollinations) |
+| `categories/grocery/biscuits-cookies-and-rusks.jpg` | 4:3 | AI generated (Pollinations) |
+| `categories/grocery/snacks-and-namkeen.jpg` | 4:3 | AI generated (Pollinations) |
+| `categories/grocery/noodles-pasta-and-ready-mix.jpg` | 4:3 | AI generated (Pollinations) |
+| `categories/grocery/pickles-sauces-and-spreads.jpg` | 4:3 | AI generated (Pollinations) |
+| `categories/grocery/dairy-and-refrigerated.jpg` | 4:3 | AI generated (Pollinations) |
+| `categories/grocery/tea-coffee-and-beverages.jpg` | 4:3 | AI generated (Pollinations) |
+| `categories/grocery/chocolates-and-sweets.jpg` | 4:3 | AI generated (Pollinations) |
+| `categories/grocery/baking-and-cooking.jpg` | 4:3 | AI generated (Pollinations) |
+| `categories/grocery/frozen-and-canned.jpg` | 4:3 | AI generated (Pollinations) |
+| `categories/grocery/more-grocery-and-daily-needs.jpg` | 4:3 | AI generated (Pollinations) |
+
+## Grocery product photography
+
+Individual grocery product images are **not** stored in this folder. They are sourced from the
+Flipkart and Amazon India public catalogues and stored permanently in Cloudinary by
+`scripts/enrich-grocery-images.mjs`; the original source URL, source website, image type and
+verification status are recorded on every product record and summarised in
+`reports/grocery-image-report.md`.
+
+## Other photographs in `public/images/`
+
+All other photographs in `public/images/` are **license-free stock placeholders** sourced from
 [Pexels](https://www.pexels.com) (Pexels License: free to use, no attribution required).
 They are **not** final brand photography and are intended to be replaced with Friendly
 Basket's own product and lifestyle photos.

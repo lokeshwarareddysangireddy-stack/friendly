@@ -16,14 +16,20 @@ export type OrderFulfilmentStatus =
   | "delivered"
   | "cancelled";
 
+export type ProductImageType = "official" | "licensed" | "generated" | "placeholder";
+
 export interface ProductImage {
   url: string;
   publicId?: string;
   alt?: string;
   sourceUrl?: string;
-  matchStatus?: "exact" | "review_required" | "not_found";
+  sourceSite?: string;
+  sourceProductId?: string;
+  imageType?: ProductImageType;
+  matchStatus?: "exact" | "review_required" | "not_found" | "generated";
   verificationStatus?: "verified" | "unverified";
   usagePermission?: "confirmed" | "unknown" | "restricted";
+  verifiedAt?: string;
 }
 
 export interface ProductDoc {
@@ -45,6 +51,7 @@ export interface ProductDoc {
   orderingMethod: OrderingMethod;
   requiresPrescription?: boolean;
   unit?: string;
+  brand?: string;
   tags?: string[];
   sortOrder?: number;
   createdAt: string;

@@ -12,6 +12,8 @@ import {
   getSettingsSafe,
 } from "@/lib/public-data";
 import { WA_TEMPLATES } from "@/lib/whatsapp";
+import { GroceryCatalog } from "@/components/services/GroceryCatalog";
+import { GROCERY_SLUG } from "@/lib/grocery-categories";
 
 export const revalidate = 300;
 
@@ -32,12 +34,17 @@ export async function generateMetadata({
 
 export default async function ServiceDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ q?: string; sort?: string; page?: string }>;
 }) {
   const { slug } = await params;
   const category = await getPublicCategoryBySlug(slug);
   if (!category || !category.active) notFound();
+  if (slug === GROCERY_SLUG) {
+    return <GroceryCatalog searchParams={await searchParams} />;
+  }
 
   const [settings, categories, productResult, facets] = await Promise.all([
     getSettingsSafe(),

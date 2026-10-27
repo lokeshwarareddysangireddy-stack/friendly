@@ -51,6 +51,7 @@ export const loginSchema = z.object({
 });
 
 export const productInputSchema = z.object({
+  tags: z.array(z.string().trim().min(1).max(80)).max(50).optional(),
   name: z.string().trim().min(2),
   slug: z.string().trim().min(2).optional(),
   description: z.string().trim().max(4000).optional().default(""),

@@ -2,7 +2,29 @@ import mongoose, { Schema, type Model } from "mongoose";
 import type { ProductDoc } from "@/types";
 
 const ImageSchema = new Schema(
-  { url: String, publicId: String, alt: String },
+  {
+    url: String,
+    publicId: String,
+    alt: String,
+    // Provenance for automated image enrichment (see scripts/enrich-grocery-images.mjs).
+    sourceUrl: String,
+    sourceSite: String,
+    sourceProductId: String,
+    imageType: {
+      type: String,
+      enum: ["official", "licensed", "generated", "placeholder"],
+    },
+    matchStatus: {
+      type: String,
+      enum: ["exact", "review_required", "not_found", "generated"],
+    },
+    verificationStatus: { type: String, enum: ["verified", "unverified"] },
+    usagePermission: {
+      type: String,
+      enum: ["confirmed", "unknown", "restricted"],
+    },
+    verifiedAt: String,
+  },
   { _id: false }
 );
 
@@ -29,6 +51,7 @@ const ProductSchema = new Schema(
     },
     requiresPrescription: { type: Boolean, default: false },
     unit: { type: String, default: "" },
+    brand: { type: String, default: "" },
     tags: { type: [String], default: [] },
     sortOrder: { type: Number, default: 0 },
   },

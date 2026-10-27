@@ -1,4 +1,5 @@
 import { connectDb, isDbConfigured } from "./connect";
+import { GROCERY_SLUG, GROCERY_TAGS, GROCERY_ALIASES, OTHER_GROCERY, groceryGroup } from "@/lib/grocery-categories";
 import { getMemoryStore, newId, type WebhookEventRec } from "./memory";
 import type {
   AdminUserDoc,
@@ -46,7 +47,45 @@ function serializeMany<T>(docs: unknown[]): T[] {
 
 /* ------------------------------- Products ------------------------------- */
 
+// The same ordered tag rules power counts and product queries, without rewriting records.
+function groceryGroupExpression() {
+  const tags = { $ifNull: ["$tags", []] };
+  return {
+    $switch: {
+      branches: [
+        ...GROCERY_TAGS.map((tag) => ({ case: { $in: [tag, tags] }, then: tag })),
+        ...Object.entries(GROCERY_ALIASES).map(([tag, aliases]) => ({
+          case: { $gt: [{ $size: { $setIntersection: [tags, aliases] } }, 0] }, then: tag,
+        })),
+      ],
+      default: OTHER_GROCERY.tag,
+    },
+  };
+}
+
+export async function getGroceryCounts(): Promise<{ tag: string; stored: number; active: number }[]> {
+  if (isDbConfigured()) {
+    await connectDb();
+    const rows = await Product.aggregate([
+      { $match: { categorySlug: GROCERY_SLUG } },
+      { $group: { _id: groceryGroupExpression(), stored: { $sum: 1 }, active: { $sum: { $cond: ["$active", 1, 0] } } } },
+    ]);
+    return rows.map((row) => ({ tag: String(row._id), stored: row.stored, active: row.active }));
+  }
+  const counts = new Map<string, { tag: string; stored: number; active: number }>();
+  for (const product of getMemoryStore().products) {
+    if (product.categorySlug !== GROCERY_SLUG) continue;
+    const tag = groceryGroup(product.tags);
+    const count = counts.get(tag) || { tag, stored: 0, active: 0 };
+    count.stored++;
+    if (product.active) count.active++;
+    counts.set(tag, count);
+  }
+  return [...counts.values()];
+}
+
 export interface ProductQuery {
+  groceryGroup?: string;
   categorySlug?: string;
   q?: string;
   featured?: boolean;
@@ -106,6 +145,10 @@ export async function listProducts(
     if (!query.includeInactive) filter.active = query.active ?? true;
     else if (query.active !== undefined) filter.active = query.active;
     if (query.categorySlug) filter.categorySlug = query.categorySlug;
+    if (query.groceryGroup) {
+      filter.categorySlug = GROCERY_SLUG;
+      filter.$expr = { $eq: [groceryGroupExpression(), query.groceryGroup] };
+    }
     if (query.featured !== undefined) filter.featured = query.featured;
     if (query.orderingOnline) filter.orderingMethod = { $in: ["online", "both"] };
     if (query.ids && query.ids.length) filter._id = { $in: query.ids };
@@ -127,7 +170,7 @@ export async function listProducts(
       newest: { createdAt: -1 },
       name: { name: 1 },
     };
-    const sort = sortMap[query.sort || "featured"] || sortMap.featured;
+    const sort = { ...(sortMap[query.sort || "featured"] || sortMap.featured), _id: 1 as const };
     const [docs, total] = await Promise.all([
       Product.find(filter)
         .sort(sort)
@@ -145,6 +188,7 @@ export async function listProducts(
   );
   if (query.active !== undefined) items = items.filter((p) => p.active === query.active);
   if (query.categorySlug) items = items.filter((p) => p.categorySlug === query.categorySlug);
+  if (query.groceryGroup) items = items.filter((p) => p.categorySlug === GROCERY_SLUG && groceryGroup(p.tags) === query.groceryGroup);
   if (query.featured !== undefined) items = items.filter((p) => p.featured === query.featured);
   if (query.orderingOnline)
     items = items.filter((p) => p.orderingMethod === "online" || p.orderingMethod === "both");

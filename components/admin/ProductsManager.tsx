@@ -23,8 +23,10 @@ import {
 } from "@/components/admin/ui";
 import { formatINR } from "@/lib/utils";
 import type { CategoryDoc, OrderingMethod, ProductDoc } from "@/types";
+import { GROCERY_CATEGORIES, GROCERY_SLUG, GROCERY_TAGS, GROCERY_ALIASES, OTHER_GROCERY, groceryGroup } from "@/lib/grocery-categories";
 
 interface FormState {
+  tags: string[];
   _id?: string;
   name: string;
   slug: string;
@@ -45,6 +47,7 @@ interface FormState {
 }
 
 const EMPTY: FormState = {
+  tags: [],
   name: "",
   slug: "",
   categoryId: "",
@@ -65,6 +68,7 @@ const EMPTY: FormState = {
 
 function toForm(p: ProductDoc): FormState {
   return {
+    tags: p.tags || [],
     _id: p._id,
     name: p.name,
     slug: p.slug,
@@ -133,7 +137,7 @@ export function ProductsManager({
     return () => clearTimeout(timer);
   }, [load]);
 
-  const set = (key: keyof FormState, value: string | boolean) => {
+  const set = (key: keyof FormState, value: string | boolean | string[]) => {
     setForm((f) => (f ? { ...f, [key]: value } : f));
   };
 
@@ -156,6 +160,7 @@ export function ProductsManager({
     }
     setSaving(true);
     const payload = {
+      tags: form.tags,
       name: form.name,
       slug: form.slug || undefined,
       categoryId: form.categoryId,
@@ -375,6 +380,18 @@ export function ProductsManager({
                 </select>
               </div>
               <div>
+                {categories.find((category) => category._id === form.categoryId)?.slug === GROCERY_SLUG && (
+                  <div className="mb-3">
+                    <Label htmlFor="p-grocery-group">Grocery category</Label>
+                    <select id="p-grocery-group" value={groceryGroup(form.tags)} className={selectClass}
+                      onChange={(event) => {
+                        const groupingTags = [...GROCERY_TAGS, ...Object.values(GROCERY_ALIASES).flat(), OTHER_GROCERY.tag];
+                        set("tags", [...form.tags.filter((tag) => !groupingTags.includes(tag)), event.target.value]);
+                      }}>
+                      {[...GROCERY_CATEGORIES, OTHER_GROCERY].map((category) => <option key={category.tag} value={category.tag}>{category.name}</option>)}
+                    </select>
+                  </div>
+                )}
                 <Label htmlFor="p-desc">Description</Label>
                 <textarea
                   id="p-desc"

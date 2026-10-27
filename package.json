@@ -8,8 +8,18 @@
     "start": "next start",
     "lint": "eslint",
     "import:grocery-catalog": "node scripts/import-grocery-catalog.mjs",
+    "update:flour-prices": "node scripts/update-flour-prices.mjs",
     "update:cooking-oil-prices": "node scripts/update-cooking-oil-prices.mjs",
-    "update:pickle-sauce-prices": "node scripts/update-pickle-sauce-prices.mjs"
+    "update:dry-fruit-prices": "node scripts/update-dry-fruit-prices.mjs",
+    "update:biscuit-prices": "node scripts/update-biscuit-prices.mjs",
+    "update:snack-prices": "node scripts/update-snack-prices.mjs",
+    "update:pickle-sauce-prices": "node scripts/update-pickle-sauce-prices.mjs",
+    "update:noodle-pasta-prices": "node scripts/update-noodle-pasta-prices.mjs",
+    "enrich:grocery-images": "node scripts/enrich-grocery-images.mjs",
+    "generate:grocery-images": "node scripts/generate-grocery-images.mjs",
+    "backfill:grocery-brands": "node scripts/backfill-grocery-brands.mjs",
+    "report:grocery-images": "node scripts/report-grocery-images.mjs",
+    "audit:grocery-images": "node scripts/audit-grocery-images.mjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
